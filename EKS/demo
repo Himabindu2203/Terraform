@@ -1,0 +1,73 @@
+import boto3
+import csv
+import os,sys
+import glob
+from configparser import ConfigParser
+#reading command line arguments when running resource_report.py
+ar_lst = list(sys.argv)
+#read the list of all the environment variable
+# home_path=os.environ.get("HOME")
+list_env = ar_lst[1]
+# list_region = ['us-east-1','us-west-2']
+# Tags to check for presence
+allowedKeyvalueTags = ['name', 'owner', 'component', 'env','environment']
+for env_name in list_env.split(','):
+    print(env_name)
+    prop_file = f"./ENV/{env_name}-config.properties"
+    print(prop_file)
+    config = ConfigParser()
+    config.read(prop_file)
+    aws_profile = config.get("Profile","AWS_PROFILE")
+    print(aws_profile)
+    Tagged_Route53_List = f"./{env_name}-Tagged_Route53_List.csv"
+    UnTagged_Route53_List = f"./{env_name}-UnTagged_Route53_List.csv"
+    # S3_Bucketerror_List =f"C:/Projectcode/S3_Bucketerror_List.csv"
+    with open(Tagged_Route53_List, 'w', newline='') as file:
+                writer = csv.writer(file)
+                field = ["ENVIRONMENT","HOSTED ZONE ID","TAGCOUNT","TAG DETAILS"]
+                writer.writerow(field)
+    with open(UnTagged_Route53_List, 'w', newline='') as file:
+                writer = csv.writer(file)
+                field = ["ENVIRONMENT","HOSTED ZONE ID","TAGCOUNT","TAG DETAILS"]
+    # Create an AWS session for the current profile
+    session = boto3.Session(profile_name=aws_profile)
+    # Create an AWS Route 53 client using the current session with SSL verification disabled
+    route53 = session.client('route53')
+    # Retrieve hosted zones
+    response = route53.list_hosted_zones()
+    # Iterate through hosted zones
+    for hosted_zone in response['HostedZones']:
+        hosted_zone_id = hosted_zone['Id'].split("/")[-1]  # Extract hosted zone ID
+        print(f"  Processing hosted zone: {hosted_zone_id}")
+        tags_response = route53.list_tags_for_resource(ResourceType='hostedzone', ResourceId=hosted_zone_id)
+        tags = tags_response.get('ResourceTagSet', {}).get('Tags', [])
+        numtagkey=0
+        for tagskey in allowedKeyvalueTags:
+            for tag in tags:    
+                if tag['Key'].strip().lower() == tagskey:
+                    numtagkey+=1    
+        if numtagkey == 4:
+            # print(f"tagscount: {numtagkey}, with specific tag bucket name:{bucket_name} - Tags: {tag_set}")
+            with open(Tagged_Route53_List, 'a', newline='') as file:
+                writer = csv.writer(file)
+                row_list = [[env_name,hosted_zone_id,numtagkey,tags]]
+                writer.writerows(row_list)
+    
+        else:
+            # print(f"tagscount: {numtagkey}, without specific tag bucket name:{bucket_name} - Tags: {tag_set}")
+            with open(UnTagged_Route53_List, 'a', newline='') as file:
+                writer = csv.writer(file)
+                row_list = [[env_name,hosted_zone_id,numtagkey,tags]]
+                writer.writerows(row_list)
+#Upload into the S3 bucket            
+audit_reports_path = f"./*.csv"
+BUCKET_NAME = 'devopssit-misc-artifacts'
+FOLDER_NAME = 'weekly-metrics-reports/'
+session = boto3.Session(profile_name='nsl-devopssit')
+s3 = session.client('s3')
+report_files = glob.glob(audit_reports_path)
+for filename in report_files:
+    key = "%s/%s" % (FOLDER_NAME, os.path.basename(filename))
+    print("Putting %s as %s" % (filename,key))
+    s3.upload_file(filename, BUCKET_NAME,key)
+print("All_Done")
