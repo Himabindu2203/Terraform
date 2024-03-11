@@ -1,0 +1,95 @@
+##############################
+## AWS Provider - Variables ##
+##############################
+variable "aws_access_key" {
+  type        = string
+  description = "AWS access key"
+  default     = ""
+}
+
+variable "aws_secret_key" {
+  type        = string
+  description = "AWS secret key"
+  default     = ""
+}
+
+variable "aws_region" {
+  type        = string
+  description = "AWS region"
+}
+
+##############################
+## WAF Configuration - Variables ##
+##############################
+
+variable "region" {
+  description = "AWS Deployment region.."
+}
+
+variable "aws_lb_arn" {
+  type        = list(string)
+  description = "ARN of your LoadBalance that you want to attach with WAF.."
+}
+
+variable "wafname" {
+  type        = string
+  description = "name of the WAF"
+}
+
+variable "ipsetname" {
+  type        = string
+  description = "name of the IPset"
+}
+
+variable "ipsetlist" {
+  type        = list(string)
+  description = "List of the IPset"
+}
+
+variable "geocountrycode" {
+  type        = list(string)
+  description = "List of the GeoCountry Code"
+}
+
+variable "managed_rules" {
+  type = list(object({
+    name            = string
+    priority        = number
+    override_action = string
+    excluded_rules  = list(string)
+  }))
+  description = "The list of Managed WAF rules."
+}
+
+variable "scope" {
+  type        = string
+  description = "scope for WAF"
+}
+
+##############################
+## Tags ##
+##############################
+
+variable "env" {
+  type        = string
+  description = "environment"
+}
+
+variable "component" {
+  type        = string
+  description = "component name - itda"
+  default     = "nsl-core"
+}
+
+variable "owner" {
+  type        = string
+  description = "owner"
+  default     = "DL-MDA-SRE@charter.com"
+}
+
+variable "srecomplience" {
+  type        = string
+  description = "srecomplience"
+  default     = "approved"
+}
+
