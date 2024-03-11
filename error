@@ -1,0 +1,17 @@
+ Error: error putting WAFv2 Logging Configuration for resource (arn:aws:wafv2:us-east-1:637423249036:regional/webacl/itda-devopssit-waf-acl-test/9f3a1ac6-aa54-4a55-96af-f72ab08663eb): WAFInvalidParameterException: Error reason: EXACTLY_ONE_CONDITION_REQUIRED, field: FIELD_TO_MATCH, parameter: FieldToMatch
+│ {
+│   RespMetadata: {
+│     StatusCode: 400,
+│     RequestID: "01592216-81e2-449f-8e47-b988617fd8a2"
+│   },
+│   Field: "FIELD_TO_MATCH",
+│   Message_: "Error reason: EXACTLY_ONE_CONDITION_REQUIRED, field: FIELD_TO_MATCH, parameter: FieldToMatch",
+│   Parameter: "FieldToMatch",
+│   Reason: "You have used none or multiple values for a field that requires exactly one value."
+│ }
+│ 
+│   with aws_wafv2_web_acl_logging_configuration.WafWebAclLogging,
+│   on waf.tf line 137, in resource "aws_wafv2_web_acl_logging_configuration" "WafWebAclLogging":
+│  137: resource "aws_wafv2_web_acl_logging_configuration" "WafWebAclLogging" {
+│ 
+╵
