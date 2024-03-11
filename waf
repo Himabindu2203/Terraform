@@ -1,0 +1,159 @@
+locals {
+  common_tags = {
+    env           = var.env,
+    component     = var.component,
+    owner         = var.owner
+    srecomplience = var.srecomplience
+  }
+}
+
+
+resource "aws_wafv2_web_acl" "WafWebAcl" {
+  name        = var.wafname
+  scope       = var.scope
+  description = "WAFv2 ACL for ITDA-${var.env}"
+
+  default_action {
+    block {
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "WAF-acl-metric"
+    sampled_requests_enabled   = true
+  }
+
+  rule {
+    name     = "GeoFencingRule"
+    priority = 0
+    action {
+      count {}
+    }
+    statement {
+      rate_based_statement {
+        limit               = 150000
+        aggregate_key_type  = "IP"
+        scope_down_statement {
+          geo_match_statement {
+            country_codes = var.geocountrycode
+          }
+        }
+      }
+    }
+    visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name                = "geo-fencing-metric"
+    }
+  }
+
+  dynamic rule {
+    for_each = var.managed_rules
+    content {
+      name     = rule.value.name
+      priority = rule.value.priority
+      override_action {
+        dynamic "none" {
+          for_each = rule.value.override_action == "none" ? [1] : []
+          content {}
+        }
+        dynamic "count" {
+          for_each = rule.value.override_action == "count" ? [1] : []
+          content {}
+        }
+      }
+      statement {
+        managed_rule_group_statement {
+          name        = rule.value.name
+          vendor_name = "AWS"
+          dynamic "excluded_rule" {
+            for_each = rule.value.excluded_rules
+            content {
+              name = excluded_rule.value
+            }
+          }
+        }
+      }
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${rule.value.name}-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  rule {
+    name     = "IPWhiteList"
+    priority = 8
+  
+    action {
+      allow {}
+    }
+  
+    statement {
+      ip_set_reference_statement {
+        arn = aws_wafv2_ip_set.ipset.arn
+      }
+    }
+  
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "IPWhiteList-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+  
+  tags = merge(
+    local.common_tags, {
+      name = var.wafname
+    }
+  )
+}
+
+resource "aws_wafv2_ip_set" "ipset" {
+  name               = "itda-${var.env}-acl-whitelist-ipset"
+  description        = "Whitelist for itda-${var.env}-acl"
+  scope              = var.scope
+  ip_address_version = "IPV4"
+  addresses          = var.ipsetlist
+  tags = merge(
+    local.common_tags, {
+      name = var.wafname
+    }
+  )
+}
+
+resource "aws_cloudwatch_log_group" "WafWebAclLoggroup" {
+  name              = "aws-waf-logs-wafv2-web-acl"
+  retention_in_days = 30
+  tags = merge(
+    local.common_tags, {
+      name = var.wafname
+    }
+  )
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "WafWebAclLogging" {
+  log_destination_configs = [aws_cloudwatch_log_group.WafWebAclLoggroup.arn]
+  resource_arn            = aws_wafv2_web_acl.WafWebAcl.arn
+  redacted_fields {
+    method {}
+    #uri_path {}
+    #query_string {}
+  }
+  depends_on = [
+    aws_wafv2_web_acl.WafWebAcl,
+    aws_cloudwatch_log_group.WafWebAclLoggroup
+  ]
+}
+
+resource "aws_wafv2_web_acl_association" "WafWebAclAssociation" {
+  for_each     = toset(var.aws_lb_arn)
+  resource_arn = each.value
+  web_acl_arn  = aws_wafv2_web_acl.WafWebAcl.arn
+  depends_on   = [
+    aws_wafv2_web_acl.WafWebAcl,
+    aws_cloudwatch_log_group.WafWebAclLoggroup
+  ]
+}
