@@ -1,0 +1,65 @@
+###################
+# AWS Credentials #
+###################
+aws_region     = "us-east-1"
+
+##############################
+## Tags ##
+##############################
+env="devopssit"
+
+#########################
+# WAF Configuration #
+#########################
+wafname = "itda-devopssit-waf-acl-test"
+ipsetname = "itda-devopssit-acl-whitelist-ipset"
+scope = "REGIONAL"
+geocountrycode = ["US", "IN"]
+ipsetlist = ["54.209.109.141/32","54.89.90.187/32","18.214.1.0/32","34.203.61.17/32","3.233.177.91/32","52.73.169.23/32","35.170.227.232/32","10.81.80.0/22","34.236.252.189/32","202.9.75.75/32","54.201.55.28/32","35.174.147.221/32","34.225.89.135/32","54.175.77.179/32","50.238.11.11/32","10.100.0.0/16","69.76.26.3/32","54.185.87.38/32","52.34.222.221/32","23.22.12.180/32","3.223.245.191/32","10.83.0.0/21","142.136.0.0/16","142.136.62.0/24","3.92.12.15/32","44.236.156.202/32","172.20.0.0/22","69.76.30.131/32"]
+region = "us-east-1"
+aws_lb_arn = ["arn:aws:elasticloadbalancing:us-east-1:637423249036:loadbalancer/app/waf-test-lb/67b63bcbf6bd3d57"]
+
+managed_rules = [
+    {
+      name            = "AWSManagedRulesBotControlRuleSet",
+      priority        = 1
+      override_action = "count"
+      excluded_rules  = ["SignalNonBrowserUserAgent","CategoryHttpLibrary"]
+    },
+    {
+      name            = "AWSManagedRulesAmazonIpReputationList",
+      priority        = 2
+      override_action = "count"
+      excluded_rules  = []
+    },
+    {
+      name            = "AWSManagedRulesCommonRuleSet",
+      priority        = 3
+      override_action = "count"
+      excluded_rules  = ["SizeRestrictions_BODY","EC2MetaDataSSRF_BODY","CrossSiteScripting_COOKIE","GenericRFI_BODY","CrossSiteScripting_BODY"]
+    },
+    {
+      name            = "AWSManagedRulesKnownBadInputsRuleSet",
+      priority        = 4
+      override_action = "none"
+      excluded_rules  = []
+    },
+    {
+      name            = "AWSManagedRulesLinuxRuleSet",
+      priority        = 5
+      override_action = "count"
+      excluded_rules  = []
+    },
+    {
+      name            = "AWSManagedRulesAdminProtectionRuleSet",
+      priority        = 6
+      override_action = "count"
+      excluded_rules  = []
+    },
+    {
+       name            = "AWSManagedRulesSQLiRuleSet",
+       priority        = 7
+       override_action = "count"
+       excluded_rules  = ["SQLi_QUERYARGUMENTS"]
+     }
+]
