@@ -1,1 +1,50 @@
 
+import boto3
+import os
+import configparser
+ 
+ENV = os.environ.get("env")
+CI_PROJECT_DIR = os.environ.get("CI_PROJECT_DIR")
+OPERATION = os.environ.get("operation")
+DB_INSTANCE_IDENTIFIER = os.environ.get("db_identifier")
+ 
+propConfig = configparser.ConfigParser()
+prop_file = f"{CI_PROJECT_DIR}/ENV/{ENV}-config.properties"
+propConfig.read(prop_file)
+PROFILE_NAME = propConfig.get('profile','profile')
+REGION = propConfig.get('profile','region')
+ 
+print(f"Env provided is {ENV}", flush=True)
+print(f"Operation provided is {OPERATION}", flush=True)
+print(f"DB Identifier provided is {DB_INSTANCE_IDENTIFIER}", flush=True)
+print(f"Region provided is {REGION}", flush=True)
+print(f"Profile provided is {PROFILE_NAME}", flush=True)
+ 
+session = boto3.Session(profile_name=PROFILE_NAME)
+ 
+def get_rds_engine_version_and_name(instance_id):
+    rds = session.client('rds', region_name=REGION)
+    response = rds.describe_db_instances(DBInstanceIdentifier=instance_id)
+    return response['DBInstances'][0]['EngineVersion'], response['DBInstances'][0]['Engine']
+ 
+def get_all_rds_engine_versions(engine_name, current_version):
+    rds = session.client('rds', region_name=REGION)  
+    response = rds.describe_db_engine_versions(Engine=engine_name)
+    all_versions = sorted([version['EngineVersion'] for version in response['DBEngineVersions']])
+    newer_versions = [version for version in all_versions if version > current_version]
+    return newer_versions
+ 
+instance_id = DB_INSTANCE_IDENTIFIER
+current_version, engine_name = get_rds_engine_version_and_name(instance_id)
+newer_versions = get_all_rds_engine_versions(engine_name, current_version)
+ 
+print(f"Current version: {current_version}", flush=True)
+ 
+for version in newer_versions:
+    print("Newer available versions:", flush=True)
+    print(version, flush=True)
+ 
+if newer_versions:
+    print("Newer versions are available.", flush=True)
+else:
+    print("You are running the latest version.", flush=True)
