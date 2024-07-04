@@ -1,51 +1,7 @@
-- name: Run the rpm command
-      command: rpm -qa
-      register: rpm_output
- 
-    - name: Filter the output for eCMTS
-      set_fact:
-        ecmts_packages: "{{ rpm_output.stdout_lines | select('search', 'eCMTS') | list | join('\n')}}"
- 
-    - name: Print the filtered output
-      debug:
-        msg: "eCMTS version installed: {{ ecmts_packages }}"
 
-    - name: Kill watcher process
-      shell: sudo pkill -f eCMTS_watcher.sh
- 
-    - name: Kill running processes of Ecmts
-      shell: pkill eCMTS
-    
- 
-    - name: Validate if there are no connections on port 3918
-      shell: ss -an | grep '3918'
-      register: port_connections
-      failed_when: port_connections.stdout != ""
+output:
+TASK [Check for running eCMTS processes] ***************************************
+fatal: [ecmts-server]: FAILED! => {"changed": true, "cmd": "pgrep eCMTS", "delta": "0:00:00.012717", "end": "2024-07-04 11:46:23.254161", "msg": "non-zero return code", "rc": 1, "start": "2024-07-04 11:46:23.241444", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
 
-
-    #- name: Uninstall eCMTS package
-    #  command: rpm -e {{ ecmts_packages }} --nodeps
-    #  register: uninstall_result
-    #  ignore_errors: true
-    #  when:  ecmts_packages  != ""
-
-    - name: Uninstall eCMTS package
-      command: rpm -e {{ item }} --nodeps
-      with_items: "{{ ecmts_packages.split('\n') }}"
-      register: uninstall_result
-      ignore_errors: true
-      when: ecmts_packages != ""
- 
-    
- 
-    - name: Validate if no eCMTS package present on the server
-      command: rpm -qa | grep -i 'eCMTS'
-      register: no_package
-      failed_when: no_package.stdout != ""
- 
-    - name: Cleanup the log files
-      shell: rm -rf /var/log/ecmts/*
- 
-
-here in Kill running processes of Ecmts task need to add condition like if any running process exists only then kill.
-also in Validate if no eCMTS package present on the server task is not giving correct output.please correct and give the code.please add and give the code.
+it is showing fatal in the output.
