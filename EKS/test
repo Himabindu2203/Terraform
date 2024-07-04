@@ -1,7 +1,45 @@
-getting error:
-ERROR! failed at splitting arguments, either an unbalanced jinja2 block or quotes: rpm -qa | grep -i '^
-The error appears to be in '/home/gitlab-runner/builds/VuRVMFqH/0/hmno-devops/wireline-infra-automation/scripts/eCMTSversionupgrade.yml': line 45, column 7, but may
-be elsewhere in the file depending on the exact syntax problem.
-The offending line appears to be:
-    - name: Check if eCMTS package is installed
-      ^ here
+- name: Download all packages from artifactory
+      shell: >
+        #wget --user={{ url_username }} --password={{ url_password }} {{ url }}/eCMTS_{{ eCMTS_version }}/eCMTS-{{ eCMTS_version }}-1.x86_64.rpm -P {{ dest }}
+        #wget --user={{ url_username }} --password={{ url_password }} {{ url }}/eCMTS_{{ eCMTS_version }}/ -P {{ dest }}
+        #wget --user={{ url_username }} --password={{ url_password }} -r -np -nH --cut-dirs=3 -R index.html/eCMTS_{{ eCMTS_version }}/ -P {{ dest }} {{ url }}
+        #wget --user={{ url_username }} --password={{ url_password }} -r -np -nH --cut-dirs=3 -R index.html -P {{ dest }} {{ url }}/eCMTS_{{ eCMTS_version }}/
+        wget --user={{ url_username }} --password={{ url_password }} -r -np -nH --cut-dirs=3 -R index.html {{ url }}/eCMTS_{{ eCMTS_version }}/ -P {{ dest }}
+      vars:
+        url: "{{ artifactory_release_path }}"
+        dest: /home/silver/
+        url_username: "{{ artifactory_user }}"
+        url_password: "{{ artifactory_password }}"
+      
+    - name: Run the rpm command
+      command: rpm -qa
+      register: rpm_output
+ 
+    - name: Filter the output for eCMTS
+      set_fact:
+        ecmts_packages: "{{ rpm_output.stdout_lines | select('search', 'eCMTS') | list | join('\n')}}"
+ 
+    - name: Print the filtered output
+      debug:
+        msg: "eCMTS version installed: {{ ecmts_packages }}"
+
+    - name: Kill watcher process
+      shell: sudo pkill -f eCMTS_watcher.sh
+ 
+    - name: Kill running processes of Ecmts
+      shell: pkill eCMTS
+      
+ 
+    - name: Validate if there are no connections on port 3918
+      shell: ss -an | grep '3918'
+      register: port_connections
+      failed_when: port_connections.stdout != ""
+
+
+    - name: Uninstall eCMTS package
+      command: rpm -e {{ ecmts_packages }} --nodeps
+      register: uninstall_result
+      ignore_errors: true
+      when: {{ ecmts_packages }} != ""
+
+here in Uninstall eCMTS package task need to add condition like if package exists only then uninstall.please add and give the code.
