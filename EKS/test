@@ -1,7 +1,12 @@
 getting error:
+
 env: ecmts
 operation: eCMTSversionupgrade
 TARGET_HOST is set to ecmts_server
+
+ok: [ecmts-server] => {
+    "msg": "Username: [MASKED], Password: A7f!kP2"
+
 PLAY [Fetch and print RPM file from Artifactory] *******************************
 TASK [Gathering Facts] *********************************************************
 ok: [ecmts-server]
