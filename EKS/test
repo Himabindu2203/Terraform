@@ -1,15 +1,3 @@
-- name: Download all packages from artifactory
-      shell: >
-        wget --user={{ url_username }} --password={{ url_password }} {{ url }}/eCMTS_{{ eCMTS_version }}/eCMTS-{{ eCMTS_version }}-1.x86_64.rpm -P {{ dest }}
-      vars:
-        url: "{{ artifactory_release_path }}"
-        dest: /home/silver/
-        url_username: "{{ artifactory_user }}"
-        url_password: "{{ artifactory_password }}"
-
-1.after the above step need to add the task to Check existing package installed on the server using the command rpm -qa | grep -i 'eCMTS'
-2.print the eCMTS version
-3.uninstall the  eCMTS  from server
-
-please provide continuation code.
-
+TASK [Print eCMTS version if installed] ****************************************
+ok: [ecmts-server] => {
+    "msg": "eCMTS version installed: Name        : grub2-pc\nEpoch       : 1\nVersion     : 2.02\nRelease     : 150.el8.rocky.0.1\nArchitecture: x86_64\nInstall Date: Mon 05 Feb 2024 12:48:22 AM UTC\nGroup       : System Environment/Base\nSize        : 0\nLicense     : GPLv3+\nSignature   : RSA/SHA256, Fri 17 Nov 2023 07:53:12 AM UTC, Key ID 15af5dac6d745a60\nSource RPM  : grub2-2.02-150.el8.rocky.0.1.src.rpm\nBuild Date  : Fri 17 Nov 2023 02:01:56 AM UTC\nBuild Host  : iad1-prod-build001.bld.equ.rockylinux.org\nRelocations : (not relocatable)\nPackager    : Release Engineering <releng@rockylinux.org>\nVendor      : Rocky\nURL         : http://www.gnu.org/software/grub/\nSummary     : Bootloader with support for Linux, Multiboot, and more\nDescription :\n\nThe GRand Unified Bootloader (GRUB) is a highly configurable and\ncustomizable bootloader with modular architecture.  It supports a rich\nvariety of kernel formats, file systems, computer architectures and\nhardware devices.\n\nThis subpackage provides support for %{1} systems.\nName        : iputils\nVersion     : 20180629\nRelease     : 11.el8\nArchitecture: x86_64\nInstall Date: Mon 05 Feb 2024 12:48:34 AM UTC\nGroup       : System Environment/Daemons\nSize        : 331700\nLicense     : BSD and GPLv2+\nSignature   : RSA/SHA256, Mon 12 Jun 2023 04:12:42 PM UTC, Key ID 15af5dac6d745a60\nSource RPM  : iputils-20180629-11.el8.src.rpm\nBuild Date  : Mon 12 Jun 2023 03:50:43 PM UTC\nBuild Host  : ord1-prod-x86build004.svc.aws.rockylinux.org\nRelocations : (not relocatable)\nPackager    : infrastructure@rockylinux.org\nVendor      : Rocky\nURL         : https://github.com/iputils/iputils\nSummary     : Network monitoring tools including ping\nDescription :\nThe iputils package contains basic utilities for monitoring a network,\nincluding ping. The ping command sends a series of ICMP protocol\nECHO_REQUEST packets to a specified network host to discover whether\nthe target machine is alive and receiving network traffic.\nName        : qt5-srpm-macros\nVersion     : 5.15.3\nRelease     : 1.el8\nArchitecture: noarch\nInstall Date: Fri 20 Oct 2023 09:19:36 PM UTC\nGroup       : Unspecified\nSize        : 0\nLicense     : GPLv3\nSignature   : RSA/SHA256, Sun 02 Oct 2022 01:02:01 PM UTC, Key ID 15af5dac6d745a60\nSource RPM  : qt5-5.15.3-1.el8.src.rpm\nBuild Date  : Thu 29 Sep 2022 01:24:48 AM UTC\nBuild Host  : ord
