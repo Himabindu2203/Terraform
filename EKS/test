@@ -1,1 +1,10 @@
-ansible-playbook -i inventory.ini eCMTSversionupgradetest.yml --extra-vars "target_host=$TARGET_HOST ansible_user=$USERNAME ansible_ssh_pass=$PASSWORD artifactory_release_path=$ARTIFACTORY_RELEASE_PATH artifactory_user=$ARTIFACTORY_USER artifactory_password='$ARTIFACTORY_PASSWORD' "eCMTS_version=3.5.11" ansible_host_key_checking=False"
+- name: Download all packages from artifactory
+      shell: >
+        wget --user={{ url_username }} --password={{ url_password }} {{ url }}/eCMTS_{{ eCMTS_version }}/eCMTS-{{ eCMTS_version }}-1.x86_64.rpm -P {{ dest }}
+      vars:
+        url: "{{ artifactory_release_path }}"
+        dest: /home/silver/
+        url_username: "{{ artifactory_user }}"
+        url_password: "{{ artifactory_password }}"
+
+this way im able to download the package to my server. why cant we r not able to do the previous code which is while fetching the file? please provide updated code
