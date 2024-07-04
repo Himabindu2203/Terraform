@@ -7,4 +7,9 @@
         url_username: "{{ artifactory_user }}"
         url_password: "{{ artifactory_password }}"
 
-this way im able to download the package to my server. why cant we r not able to do the previous code which is while fetching the file? please provide updated code
+1.after the above step need to add the task to Check existing package installed on the server using the command rpm -qa | grep -i 'eCMTS'
+2.print the eCMTS version
+3.uninstall the  eCMTS  from server
+
+please provide continuation code.
+
