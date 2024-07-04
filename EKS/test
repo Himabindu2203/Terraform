@@ -1,9 +1,69 @@
-Required the below steps in ansible playbook
+getting error:
+env: ecmts
+operation: eCMTSversionupgrade
+TARGET_HOST is set to ecmts_server
+ERROR! We were unable to read either as JSON nor YAML, these are the errors we got from each:
+JSON: Expecting value: line 1 column 1 (char 0)
+Syntax Error while loading YAML.
+  found unknown escape character
+The error appears to be in '/home/gitlab-runner/builds/VuRVMFqH/0/hmno-devops/wireline-infra-automation/scripts/eCMTSversionupgradetest.yml': line 10, column 50, but may
+be elsewhere in the file depending on the exact syntax problem.
+The offending line appears to be:
+    dest: /home/silver/
+    rpm_file_regex: "eCMTS-{{ eCMTS_version }}-.*\.rpm"
+                                                 ^ here
+We could be wrong, but this one looks like it might be an issue with
+missing quotes. Always quote template expression brackets when they
+start a value. For instance:
+    with_items:
+      - {{ foo }}
+Should be written as:
+    with_items:
+      - "{{ foo }}"
 
-1.Fetch the RPM file in the artifactory path:
-   - Use creadentials to login to artifactory
-   - fetch the RPM file(eCMTS-3.5.11-1.x86_64.rpm) inside the eCMTS_3.5.11 directory
-     here below is the path for reference.
-    wget --user={{ url_username }} --password={{ url_password }} {{ url }}/eCMTS_3.5.11/eCMTS-3.5.11-1.x86_64.rpm -P {{ dest }}
-   - print the rpm file
+here is the code:
+---
+- name: Fetch and print RPM file from Artifactory
+  hosts: "{{ target_host }}"
+  become: yes
+  vars:
+    url: "{{ artifactory_release_path }}"
+    url_username: "{{ artifactory_user }}"
+    url_password: "{{ artifactory_password }}"
+    dest: /home/silver/
+    rpm_file_regex: "eCMTS-{{ eCMTS_version }}-.*\.rpm"
+ 
+  tasks:
+    - name: Get list of files in RPM directory
+      uri:
+        url: "{{ artifactory_release_path }}/eCMTS_{{ eCMTS_version }}/"
+        method: GET
+        user: "{{ artifactory_user }}"
+        password: "{{ artifactory_password }}"
+        force_basic_auth: yes
+        return_content: yes
+      register: rpm_list
+ 
+    - name: Extract RPM file name from the directory listing
+      set_fact:
+        rpm_file: "{{ rpm_list.content | regex_search(rpm_file_regex) }}"
+ 
+    - name: Fail if no RPM file is found
+      fail:
+        msg: "No RPM file found matching the pattern {{ rpm_file_regex }} in the directory eCMTS_{{eCMTS_version }}"
+      when: rpm_file is not defined
+ 
+    - name: Download RPM file from Artifactory
+      get_url:
+        url: "{{ artifactory_release_path }}/eCMTS_{{ eCMTS_version }}/{{ rpm_file }}"
+        dest: "/home/silver/{{ rpm_file }}"
+        url_username: "{{ artifactory_user }}"
+        url_password: "{{ artifactory_password }}"
+      register: fetch_result
+ 
+    - name: Print the fetched RPM file name
+      debug:
+        msg: "Fetched RPM file: /home/silver/{{ rpm_file }}"
+
+please correct and provide the code
  
