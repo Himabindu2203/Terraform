@@ -1,7 +1,7 @@
 
-output:
-TASK [Check for running eCMTS processes] ***************************************
-fatal: [ecmts-server]: FAILED! => {"changed": true, "cmd": "pgrep eCMTS", "delta": "0:00:00.012717", "end": "2024-07-04 11:46:23.254161", "msg": "non-zero return code", "rc": 1, "start": "2024-07-04 11:46:23.241444", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
-...ignoring
+- name: Print the filtered output
+      debug:
+        msg: "eCMTS version installed: {{ ecmts_packages }}"
 
-it is showing fatal in the output.
+
+here in the above task how to display like there is no ecmts package available if there no package installed.
