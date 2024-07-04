@@ -1,14 +1,1 @@
-getting error:
-
-env: ecmts
-operation: eCMTSversionupgrade
-TARGET_HOST is set to ecmts_server
-
-ok: [ecmts-server] => {
-    "msg": "Username: [MASKED], Password: A7f!kP2"
-
-PLAY [Fetch and print RPM file from Artifactory] *******************************
-TASK [Gathering Facts] *********************************************************
-ok: [ecmts-server]
-TASK [Get list of files in RPM directory] **************************************
-fatal: [ecmts-server]: FAILED! => {"changed": false, "connection": "close", "content": "{\n  \"errors\" : [ {\n    \"status\" : 401,\n    \"message\" : \"Bad credentials\"\n  } ]\n}", "content_length": "80", "content_type": "application/json;charset=ISO-8859-1", "date": "Thu, 04 Jul 2024 05:34:34 GMT", "elapsed": 0, "json": {"errors": [{"message": "Bad credentials", "status": 401}]}, "msg": "Status code was 401 and not [200]: HTTP Error 401: ", "redirected": false, "status": 401, "url": "[MASKED]/eCMTS_3.5.11/", "www_authenticate": "Basic realm=\"Artifactory Realm\""}
+ansible-playbook -i inventory.ini eCMTSversionupgradetest.yml --extra-vars "target_host=$TARGET_HOST ansible_user=$USERNAME ansible_ssh_pass=$PASSWORD artifactory_release_path=$ARTIFACTORY_RELEASE_PATH artifactory_user=$ARTIFACTORY_USER artifactory_password='$ARTIFACTORY_PASSWORD' "eCMTS_version=3.5.11" ansible_host_key_checking=False"
