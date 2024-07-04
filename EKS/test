@@ -1,0 +1,9 @@
+Required the below steps in ansible playbook
+
+1.Fetch the RPM file in the artifactory path:
+   - Use creadentials to login to artifactory
+   - fetch the RPM file(eCMTS-3.5.11-1.x86_64.rpm) inside the eCMTS_3.5.11 directory
+     here below is the path for reference.
+    wget --user={{ url_username }} --password={{ url_password }} {{ url }}/eCMTS_3.5.11/eCMTS-3.5.11-1.x86_64.rpm -P {{ dest }}
+   - print the rpm file
+ 
