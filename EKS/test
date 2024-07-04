@@ -1,6 +1,7 @@
-output:
-TASK [Print eCMTS version if installed] ****************************************
-ok: [ecmts-server] => {
-    "msg": "{\"eCMTS\":{\"time\":1720076585,\"level\":\"INFO\",\"msg\":\"pc\nEpoch       : 1\nVersion     : 2.02\nRelease     : 150.el8.rocky.0.1\nArchitecture: x86_64\nInstall Date: Mon 05 Feb 2024 12:48:22 AM UTC\nGroup       : System Environment/Base\nSize        : 0\nLicense     : GPLv3+\nSignature   : RSA/SHA256, Fri 17 Nov 2023 07:53:12 AM UTC, Key ID 15af5dac6d745a60\nSource RPM  : grub2\"}}"
-}
-it is not showing proper output.
+getting error:
+ERROR! failed at splitting arguments, either an unbalanced jinja2 block or quotes: rpm -qa | grep -i '^
+The error appears to be in '/home/gitlab-runner/builds/VuRVMFqH/0/hmno-devops/wireline-infra-automation/scripts/eCMTSversionupgrade.yml': line 45, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+The offending line appears to be:
+    - name: Check if eCMTS package is installed
+      ^ here
