@@ -1,7 +1,14 @@
 
-- name: Print the filtered output
-      debug:
-        msg: "eCMTS version installed: {{ ecmts_packages }}"
+- name: Download all packages from artifactory
+      shell: >
+        #wget --user={{ url_username }} --password='{{ url_password }}' {{ url }}/eCMTS_{{ eCMTS_version }}/eCMTS-{{ eCMTS_version }}-1.x86_64.rpm -P {{ dest }}
+        wget --user={{ url_username }} --password='{{ url_password }}' -r -np -nH --cut-dirs=3 -R index.html -P {{ dest }} {{ url }}
+      vars:
+        url: "{{ artifactory_release_path }}/eCMTS_{{ eCMTS_version }}/"
+        dest: /home/silver/eCMTS/
+        url_username: "{{ artifactory_user }}"
+        url_password: "{{ artifactory_password }}"
 
-
-here in the above task how to display like there is no ecmts package available if there no package installed.
+1.after the above task need to list and print  the eCMTSpackage rpm file under /home/silver/eCMTS/eCMTS_3.5.11.
+2.install the ecmts package on the server
+please provide the ansible script.
