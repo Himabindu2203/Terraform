@@ -1,14 +1,3 @@
-
-- name: Download all packages from artifactory
-      shell: >
-        #wget --user={{ url_username }} --password='{{ url_password }}' {{ url }}/eCMTS_{{ eCMTS_version }}/eCMTS-{{ eCMTS_version }}-1.x86_64.rpm -P {{ dest }}
-        wget --user={{ url_username }} --password='{{ url_password }}' -r -np -nH --cut-dirs=3 -R index.html -P {{ dest }} {{ url }}
-      vars:
-        url: "{{ artifactory_release_path }}/eCMTS_{{ eCMTS_version }}/"
-        dest: /home/silver/eCMTS/
-        url_username: "{{ artifactory_user }}"
-        url_password: "{{ artifactory_password }}"
-
-1.after the above task need to list and print  the eCMTSpackage rpm file under /home/silver/eCMTS/eCMTS_3.5.11.
-2.install the ecmts package on the server
-please provide the ansible script.
+error:
+TASK [List and print the eCMTS package rpm file] *******************************
+fatal: [ecmts-server]: FAILED! => {"changed": true, "cmd": "ls -1 /home/silver/eCMTS/eCMTS_/*.rpm", "delta": "0:00:00.006497", "end": "2024-07-05 04:53:12.406903", "msg": "non-zero return code", "rc": 2, "start": "2024-07-05 04:53:12.400406", "stderr": "ls: cannot access '/home/silver/eCMTS/eCMTS_/*.rpm': No such file or directory", "stderr_lines": ["ls: cannot access '/home/silver/eCMTS/eCMTS_/*.rpm': No such file or directory"], "stdout": "", "stdout_lines": []}
