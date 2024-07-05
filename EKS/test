@@ -1,3 +1,9 @@
-error:
-TASK [List and print the eCMTS package rpm file] *******************************
-fatal: [ecmts-server]: FAILED! => {"changed": true, "cmd": "ls -1 /home/silver/eCMTS/eCMTS_/*.rpm", "delta": "0:00:00.006497", "end": "2024-07-05 04:53:12.406903", "msg": "non-zero return code", "rc": 2, "start": "2024-07-05 04:53:12.400406", "stderr": "ls: cannot access '/home/silver/eCMTS/eCMTS_/*.rpm': No such file or directory", "stderr_lines": ["ls: cannot access '/home/silver/eCMTS/eCMTS_/*.rpm': No such file or directory"], "stdout": "", "stdout_lines": []}
+TASK [Ensure the destination directory exists] *********************************
+changed: [ecmts-server]
+TASK [Debug content of the destination directory] ******************************
+changed: [ecmts-server]
+TASK [Print the content of the destination directory] **************************
+ok: [ecmts-server] => {
+    "msg": [
+        "total 0"
+    ]
