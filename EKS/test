@@ -1,9 +1,35 @@
-TASK [Ensure the destination directory exists] *********************************
-changed: [ecmts-server]
-TASK [Debug content of the destination directory] ******************************
-changed: [ecmts-server]
-TASK [Print the content of the destination directory] **************************
-ok: [ecmts-server] => {
-    "msg": [
-        "total 0"
-    ]
+- name: Run the rpm command
+      command: rpm -qa
+      register: rpm_output
+ 
+    - name: Filter the output for eCMTS to get the eCMTS package
+      set_fact:
+        ecmts_packages: "{{ rpm_output.stdout_lines | select('search', 'eCMTS') | list | join('\n')}}"
+ 
+    - name: Print the eCMTS package
+      debug:
+       msg: >-
+        {% if ecmts_packages == "" %}
+        No eCMTS packages are installed.
+        {% else %}
+        eCMTS version(s) installed: {{ ecmts_packages }}
+        {% endif %}
+
+    - name: Check eCMTS version
+      command: eCMTS --version
+      register: existing_ecmts
+      when: ecmts_packages != ""
+      become: yes
+
+    - name: Print eCMTS version if installed
+      debug:
+        msg: "eCMTS version installed: {{ existing_ecmts.stdout_lines }}"
+
+getting the error in the task below:
+TASK [Check eCMTS version] *****************************************************
+fatal: [ecmts-server]: FAILED! => {"changed": false, "cmd": "eCMTS --version", "msg": "[Errno 2] No such file or directory: b'eCMTS': b'eCMTS'", "rc": 2, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+PLAY RECAP *********************************************************************
+ecmts-server               : ok=19   changed=10   unreachable=0    failed=1    s
+
+can u pls update the code by adding the condition like if installed then run eCMTS --version
+please provide the updated code.
