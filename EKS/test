@@ -1,15 +1,21 @@
-TASK [Check if eCMTS command exists] *******************************************
-fatal: [ecmts-server]: FAILED! => {"changed": true, "cmd": ["which", "eCMTS"], "delta": "0:00:00.007216", "end": "2024-07-05 09:25:37.249678", "msg": "non-zero return code", "rc": 1, "start": "2024-07-05 09:25:37.242462", "stderr": "which: no eCMTS in (/sbin:/bin:/usr/sbin:/usr/bin)", "stderr_lines": ["which: no eCMTS in (/sbin:/bin:/usr/sbin:/usr/bin)"], "stdout": "", "stdout_lines": []}
-...ignoring
-TASK [Check eCMTS version if command exists] ***********************************
-skipping: [ecmts-server]
-TASK [Print eCMTS version if installed] ****************************************
-skipping: [ecmts-server]led: {{ existing_ecmts.stdout_lines }}"
+- name: Validate eCMTS version
+      shell: eCMTS --version
+      register: ecmtsversion
+      #become: yes
+      #become_user: silver
 
-getting the error in the task below:
-TASK [Check eCMTS version] *****************************************************
-fatal: [ecmts-server]: FAILED! => {"changed": false, "cmd": "eCMTS --version", "msg": "[Errno 2] No such file or directory: b'eCMTS': b'eCMTS'", "rc": 2, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
-PLAY RECAP *********************************************************************
-ecmts-server               : ok=19   changed=10   unreachable=0    failed=1    s
+    - name: Print the eCMTS version
+      debug:
+        msg: "{{ ecmtsversion.stdout }}"
 
-getting fatal error
+error:
+
+env: ecmts
+operation: eCMTSversionupgrade
+TARGET_HOST is set to ecmts_server
+ERROR! 'shell' is not a valid attribute for a Play
+The error appears to be in '/home/gitlab-runner/builds/VuRVMFqH/0/hmno-devops/wireline-infra-automation/scripts/eCMTSversionupgrade.yml': line 35, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+The offending line appears to be:
+    - name: Validate eCMTS version
+      ^ here
