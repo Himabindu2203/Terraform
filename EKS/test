@@ -1,21 +1,165 @@
-- name: Validate eCMTS version
-      shell: eCMTS --version
+---
+- name: Upgrade eCMTS version 
+  hosts: "{{ target_host }}"
+  become: yes
+  tasks:
+
+    - name: Download eCMTS packages from artifactory
+      shell: >
+        wget --user={{ url_username }} --password='{{ url_password }}' -r -np -nH --cut-dirs=3 -R index.html -P {{ dest }} "{{ url }}"
+      vars:
+        url: "{{ artifactory_release_path }}/eCMTS_{{ eCMTS_version }}/"
+        dest: /home/silver/eCMTS/
+        url_username: "{{ artifactory_user }}"
+        url_password: "{{ artifactory_password }}"
+        become: yes
+        become_user: silver    
+     
+    - name: Run the rpm command
+      command: rpm -qa
+      register: rpm_output
+ 
+    - name: Filter the output for eCMTS to get the eCMTS package
+      set_fact:
+        ecmts_packages: "{{ rpm_output.stdout_lines | select('search', 'eCMTS') | list | join('\n')}}"
+ 
+    - name: Print the existing eCMTS package on the server
+      debug:
+       msg: >-
+        {% if ecmts_packages == "" %}
+        No eCMTS packages are installed.
+        {% else %}
+        eCMTS version(s) installed: {{ ecmts_packages }}
+        {% endif %}
+   
+    - name: Validate eCMTS version
+      command: eCMTS --version
       register: ecmtsversion
-      #become: yes
-      #become_user: silver
+      become: yes
+      become_user: silver
 
     - name: Print the eCMTS version
       debug:
-        msg: "{{ ecmtsversion.stdout }}"
+        msg: "{{ ecmtsversion.stdout_lines }}"
 
-error:
+    - name: Kill watcher process
+      shell: sudo pkill -f eCMTS_watcher.sh
+    - name: Check for running eCMTS processes
+      shell: pgrep eCMTS
+      register: ecmts_processes
+      ignore_errors: true
+      failed_when: false
 
-env: ecmts
-operation: eCMTSversionupgrade
-TARGET_HOST is set to ecmts_server
-ERROR! 'shell' is not a valid attribute for a Play
-The error appears to be in '/home/gitlab-runner/builds/VuRVMFqH/0/hmno-devops/wireline-infra-automation/scripts/eCMTSversionupgrade.yml': line 35, column 7, but may
-be elsewhere in the file depending on the exact syntax problem.
-The offending line appears to be:
+    - name: Kill running processes of Ecmts
+      shell: pkill eCMTS
+      when: ecmts_processes.stdout != ""
+
+    - name: Validate if there are no connections on port 3918
+      shell: ss -an | grep '3918'
+      register: port_connections
+      failed_when: port_connections.stdout != ""
+
+    - name: Uninstall current eCMTS package
+      command: rpm -e {{ item }} --nodeps
+      with_items: "{{ ecmts_packages.split('\n') }}"
+      register: uninstall_result
+      ignore_errors: true
+      when: ecmts_packages != ""
+
+    - name: Run the rpm command
+      command: rpm -qa
+      register: rpm_output
+
+    - name: Check the output for eCMTS
+      set_fact:
+        ecmts_packages: "{{ rpm_output.stdout_lines | select('search', 'eCMTS') | list | join('\n')}}"
+
+    - name: Validate if no eCMTS package present on the server
+      debug:
+       msg: >-
+        {% if ecmts_packages == "" %}
+        No eCMTS packages are installed.
+        {% else %}
+        eCMTS version(s) installed: {{ ecmts_packages }}
+        {% endif %}
+
+    - name: Cleanup the log files
+      shell: rm -rf /var/log/ecmts/*
+      
+    - name: Find New version of eCMTS RPM file
+      find:
+        paths: /home/silver/eCMTS/eCMTS_{{ eCMTS_version }}
+        patterns: "*.rpm"
+      register: rpm_files
+     
+    - name: Print New version of eCMTS RPM file name available in server
+      debug:
+        msg: "eCMTS RPM file found: {{ item.path | basename }}"
+      with_items: "{{ rpm_files.files }}"
+      when: rpm_files.matched > 0
+
+    - name: Install New version of eCMTS RPM 
+      shell:
+        cmd: "sudo rpm -i {{ item.path }} --nodeps"
+      with_items: "{{ rpm_files.files }}"
+      when: rpm_files.matched > 0
+
+    - name: Run the rpm command
+      command: rpm -qa
+      register: rpm_output
+
+    - name: Check the output for eCMTS to get the eCMTS package
+      set_fact:
+        ecmts_packages: "{{ rpm_output.stdout_lines | select('search', 'eCMTS') | list | join('\n')}}"
+
+    - name: Print the installed eCMTS version and package 
+      debug:
+       msg: >-
+        {% if ecmts_packages == "" %}
+        No eCMTS packages are installed.
+        {% else %}
+        eCMTS version(s) installed: {{ ecmts_packages }}
+        {% endif %}
+
     - name: Validate eCMTS version
-      ^ here
+      command: eCMTS --version
+      register: ecmtsversion
+      become: yes
+      become_user: silver
+
+    - name: Print the eCMTS version
+      debug:
+        msg: "{{ ecmtsversion.stdout_lines }}"
+
+    - name: Run eCMTS processes on all IPs of server
+      command: eCMTS -c /opt/etc/config/{{ item }}.json
+      async: 600  
+      poll: 0
+      register: async_task
+      become: yes
+      become_user: silver
+      loop:
+        - eCMTS
+        - eCMTS1
+        - eCMTS2
+        - eCMTS3
+        - eCMTS4
+        - eCMTS5
+        - eCMTS6
+        - eCMTS7
+        - eCMTS8
+        - eCMTS9
+     
+    - name: Run watcher script
+      command: /bin/bash /opt/etc/config/eCMTS_watcher.sh 
+      async: 600  
+      poll: 0
+      register: async_task
+      become: yes
+      become_user: silver
+
+    - name: Validate network connections at port 3918
+      shell: ss -ntulp | grep 3918
+      register: port_connections
+      failed_when: port_connections.stdout == ""
+...
