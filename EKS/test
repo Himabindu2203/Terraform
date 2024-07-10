@@ -1,27 +1,18 @@
-- name: Check for existing eCMTS package on the server
-      shell: rpm -qa | grep eCMTS || true
-      register: ecmts_output
- 
-    - name: Print the existing eCMTS package
+
+
+- name: Download eCMTS packages from artifactory
+      shell: >
+        wget --user={{ url_username }} --password='{{ url_password }}' -r -np -nH --cut-dirs=3 -R index.html -P {{ dest }} "{{ url }}"
+      vars:
+        url: "{{ artifactory_release_path }}/eCMTS_{{ eCMTS_version }}/"
+        dest: /home/silver/eCMTS/
+        url_username: "{{ artifactory_user }}"
+        url_password: "{{ artifactory_password }}"
+      register: download_result  
+
+    - name: Print output
       debug:
-        msg: >-
-          {% if ecmts_output.stdout == "" %}
-          No eCMTS packages are installed.
-          {% else %}
-          eCMTS version(s) installed: {{ ecmts_output.stdout }}
-          {% endif %}
+        msg: "{{ download_result.stdout_lines | default(['Error: No packages found in the Artifactory. Exiting the pipeline.']) }}"
+      failed_when: download_result.rc != 0
 
-trying to ununstall the paxkage in the below task:
-- name: Uninstall current eCMTS package
-      command: rpm -e {{ item }} --nodeps
-      with_items: "{{ ecmts_output.split('\n') }}"
-      register: uninstall_result
-      ignore_errors: true
-      when: ecmts_output != ""
-
-but showing error:
-
-
-TASK [Uninstall current eCMTS package] *****************************************
-fatal: [ecmts-server]: FAILED! => {"msg": "'dict object' has no attribute 'split'. 'dict object' has no attribute 'split'"}
-...ignoring
+need to print the output of the task -it should print the downloaded package.if package not found in artifactory it should print error finding to download the file from artifactory and exit the pipeline.
