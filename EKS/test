@@ -1,19 +1,6 @@
-- name: Run the rpm command
-      command: rpm -qa
-      register: rpm_output
- 
-    - name: Filter the output for eCMTS to get the eCMTS package
-      set_fact:
-        ecmts_packages: "{{ rpm_output.stdout_lines | select('search', 'eCMTS') | list | join('\n')}}"
+- name: Validate network connections at port 3918
+      shell: ss -ntulp | grep 3918
+      register: port_connections
+      failed_when: port_connections.stdout == ""
 
-
-how to make this two tasks  as single task?
-then use print task
-- name: Print the existing eCMTS package on the server
-      debug:
-       msg: >-
-        {% if ecmts_packages == "" %}
-        No eCMTS packages are installed.
-        {% else %}
-        eCMTS version(s) installed: {{ ecmts_packages }}
-        {% endif %}
+print the output for this task like network connection at port 3918 if network connections at port 3918. if not found then print no network connection at port 3918
