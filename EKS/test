@@ -1,18 +1,10 @@
 
 
-- name: Download eCMTS packages from artifactory
-      shell: >
-        wget --user={{ url_username }} --password='{{ url_password }}' -r -np -nH --cut-dirs=3 -R index.html -P {{ dest }} "{{ url }}"
-      vars:
-        url: "{{ artifactory_release_path }}/eCMTS_{{ eCMTS_version }}/"
-        dest: /home/silver/eCMTS/
-        url_username: "{{ artifactory_user }}"
-        url_password: "{{ artifactory_password }}"
-      register: download_result  
+TASK [Download eCMTS packages from artifactory] ********************************
+changed: [ecmts-server]
+TASK [Print downloaded eCMTS package] ******************************************
+fatal: [ecmts-server]: FAILED! => {
+    "msg": " Error: No packages found in the Artifactory. Exiting the pipeline. "
+}
 
-    - name: Print output
-      debug:
-        msg: "{{ download_result.stdout_lines | default(['Error: No packages found in the Artifactory. Exiting the pipeline.']) }}"
-      failed_when: download_result.rc != 0
-
-need to print the output of the task -it should print the downloaded package.if package not found in artifactory it should print error finding to download the file from artifactory and exit the pipeline.
+showing error. im able to download the package to the server. but while printing its showing error like no package found.
