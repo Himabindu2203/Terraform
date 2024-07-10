@@ -1,19 +1,5 @@
-- name: Run eCMTS processes on all IPs of server
-      command: eCMTS -c /opt/etc/config/{{ item }}.json 
-      async: 31536000  
-      poll: 0
-      register: async_task
-      #become_user: silver
-      loop:
-        - eCMTS
-        - eCMTS1
-        - eCMTS2
-        - eCMTS3
-        - eCMTS4
-        - eCMTS5
-        - eCMTS6
-        - eCMTS7
-        - eCMTS8
-        - eCMTS9
+output:
+showing error
 
-print the output of running proceess and if not  print no process running
+TASK [Wait for eCMTS process tasks to complete] ********************************
+failed: [ecmts-server] (item={'failed': 0, 'started': 1, 'finished': 0, 'ansible_job_id': 'j383258119179.3533896', 'results_file': '/root/.ansible_async/j383258119179.3533896', 'changed': True, 'item': 'eCMTS', 'ansible_loop_var': 'item'}) => {"ansible_job_id": "j383258119179.3533896", "ansible_loop_var": "item", "attempts": 1, "changed": false, "cmd": "eCMTS -c /opt/etc/config/eCMTS.json", "finished": 1, "item": {"ansible_job_id": "j383258119179.3533896", "ansible_loop_var": "item", "changed": true, "failed": 0, "finished": 0, "item": "eCMTS", "results_file": "/root/.ansible_async/j383258119179.3533896", "started": 1}, "msg": "[Errno 2] No such file or directory: b'eCMTS': b'eCMTS'", "rc": 2, "results_file": "/root/.ansible_async/j383258119179.3533896", "started": 1, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
