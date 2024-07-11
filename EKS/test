@@ -1,10 +1,5 @@
 
 
-TASK [Download eCMTS packages from artifactory] ********************************
-changed: [ecmts-server]
-TASK [Print downloaded eCMTS package] ******************************************
-fatal: [ecmts-server]: FAILED! => {
-    "msg": " Error: No packages found in the Artifactory. Exiting the pipeline. "
-}
-
-showing error. im able to download the package to the server. but while printing its showing error like no package found.
+[ecmts_server]
+ecmts-server ansible_host=172.20.35.4
+ecmts-server ansible_host=172.20.35.12
