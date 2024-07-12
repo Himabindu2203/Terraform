@@ -1,6 +1,15 @@
 
-This job is stuck because of one of the following problems. There are no active runners online, no runners for the protected branch, or no runners that match all of the job's tags: $RUNNER_TAG
+Pipeline
+Needs
+Jobs
+4
+Tests
+0
+Audit
+Audit Job for DevOpsSIT
+Audit Job for SIT
+Convert
+Convert Job for DevOpsSIT
+Convert Job for SIT
 
-Go to project CI settings
-
-
+here i can run Audit Job for DevOpsSIT, but not able to run Convert Job for DevOpsSIT. i think there should be different stages for each environment.
