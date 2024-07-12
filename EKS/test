@@ -1,15 +1,9 @@
+Uploading artifacts...
+Runtime platform                                    arch=amd64 os=linux pid=1278571 revision=535ced5f version=16.11.1
+WARNING: ./final-artifact/devopssit/*.xlsx: no matching files. Ensure that the artifact path is relative to the working directory (/home/gitlab-runner/builds/MEQM6Msv/0/hmno-devops/wireline-infra-automation) 
+ERROR: No files to upload                          
+Cleaning up project directory and file based variables
+00:00
+Job succeeded
 
-Pipeline
-Needs
-Jobs
-4
-Tests
-0
-Audit
-Audit Job for DevOpsSIT
-Audit Job for SIT
-Convert
-Convert Job for DevOpsSIT
-Convert Job for SIT
-
-here i can run Audit Job for DevOpsSIT, but not able to run Convert Job for DevOpsSIT. i think there should be different stages for each environment.
+getting error while converting csv to excel.
