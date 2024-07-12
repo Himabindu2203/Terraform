@@ -1,199 +1,5 @@
-audit job is succeeded
+covert to excel local.py
 
-Uploading artifacts...
-Runtime platform                                    arch=amd64 os=linux pid=1278308 revision=535ced5f version=16.11.1
-./artifacts/devopssit/*.csv: found 1 matching artifact files and directories 
-Uploading artifacts as "archive" to coordinator... 201 Created  id=130846720 responseStatus=201 Created token=64_1E3KZ
-Cleaning up project directory and file based variables
-00:00
-Job succeeded
-
-convertoexcel job failed:
-Uploading artifacts...
-Runtime platform                                    arch=amd64 os=linux pid=1278571 revision=535ced5f version=16.11.1
-WARNING: ./final-artifact/devopssit/*.xlsx: no matching files. Ensure that the artifact path is relative to the working directory (/home/gitlab-runner/builds/MEQM6Msv/0/hmno-devops/wireline-infra-automation) 
-ERROR: No files to upload                          
-Cleaning up project directory and file based variables
-00:00
-Job succeeded
-
-gitlabci script:
-
-variables:
-  env:
-    value: ""
-    description: "Enter the environment name(s), comma-separated: devopssit,sit,qa,uat,preprod"
-  aws_resources:
-    value: ""
-    description: "Enter the AWS resource name(s), comma-separated: EKS,EC2,RDS,ROUTE53,S3,ELB,SG,CLOUDWATCH,EFS,WAF,IAM"
- 
-stages:
-  - devopssit_audit
-  - devopssit_convert
-  - sit_audit
-  - sit_convert
-  
- 
-workflow:
-  rules:
-    - if: $env != ""
-      variables:
-        ENVIRONMENTS: $env
- 
-Audit Job for DevOpsSIT:
-  stage: devopssit_audit
-  script:
-    - |
-      set +x
-      cd ${CI_PROJECT_DIR}/
-      mkdir -p ./artifacts/${env}/
-      IFS=',' read -ra resources <<< "$aws_resources"
-      for resource in "${resources[@]}"; do
-        if [[ "${resource^^}" == "EC2" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/ec2.py "${env}" > "./artifacts/${env}/ec2.csv"
-        elif [[ "${resource^^}" == "EKS" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/EKS_Audit.py "${env}" > "./artifacts/${env}/eks.csv"
-        elif [[ "${resource^^}" == "S3" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/S3.py "${env}" > "./artifacts/${env}/s3.csv"
-        elif [[ "${resource^^}" == "RDS" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/rds.py "${env}" > "./artifacts/${env}/rds.csv"
-        elif [[ "${resource^^}" == "ELB" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/LB_Audit.py "${env}" > "./artifacts/${env}/elb.csv"
-        elif [[ "${resource^^}" == "ROUTE53" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/route53_audit.py "${env}" > "./artifacts/${env}/route53.csv"
-        elif [[ "${resource^^}" == "SG" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/sg-audit.py "${env}" > "./artifacts/${env}/sg.csv"
-        elif [[ "${resource^^}" == "IAM" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/iam-audit.py "${env}" > "./artifacts/${env}/iam.csv"
-        elif [[ "${resource^^}" == "CLOUDWATCH" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/cloudwatch-audit.py "${env}" > "./artifacts/${env}/cloudwatch.csv"
-        elif [[ "${resource^^}" == "WAF" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/waf.py "${env}" > "./artifacts/${env}/waf.csv"
-        elif [[ "${resource^^}" == "EFS" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/efs.py "${env}" > "./artifacts/${env}/efs.csv"
-        else
-          echo "Input variable \"resource\" does not have one of the expected values: EKS/EC2/RDS/ROUTE53/S3/ELB/SG/CLOUDWATCH/EFS/WAF/IAM"
-          exit 1
-        fi
-      done
-  when: manual
-  allow_failure: false
-  only:
-    variables:
-      - ($env != "" && $aws_resources != "")
-  artifacts:
-    paths:
-      - ./artifacts/${env}/*.csv
-    expire_in: 1 day
-  tags:
-    - dd-server-itda-devopssit-ue1
- 
-Convert Job for DevOpsSIT:
-  stage: devopssit_convert
-  script:
-    - |
-      python3 convert_to_excel_local.py "${env}"
-      echo "Executing conversion for ${env} environment"
-  dependencies:
-    - Audit Job for DevOpsSIT
-  when: manual
-  allow_failure: false
-  artifacts:
-    paths:
-      - ./final-artifact/${env}/*.xlsx
-    expire_in: 1 day
-  tags:
-    - dd-server-itda-devopssit-ue1
- 
-Audit Job for SIT:
-  stage: sit_audit
-  script:
-    - |
-      set +x
-      cd ${CI_PROJECT_DIR}/
-      mkdir -p ./artifacts/${env}/
-      IFS=',' read -ra resources <<< "$aws_resources"
-      for resource in "${resources[@]}"; do
-        if [[ "${resource^^}" == "EC2" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/ec2.py "${env}" > "./artifacts/${env}/ec2.csv"
-        elif [[ "${resource^^}" == "EKS" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/EKS_Audit.py "${env}" > "./artifacts/${env}/eks.csv"
-        elif [[ "${resource^^}" == "S3" ]]; then
-          echo "Executing operation $resource in${env} environment"
-          python3 ./scripts/S3.py "${env}" > "./artifacts/${env}/s3.csv"
-        elif [[ "${resource^^}" == "RDS" ]]; then
-          echo "Executing operation $resource in ${env}environment"
-          python3 ./scripts/rds.py "${env}t" > "./artifacts/${env}/rds.csv"
-        elif [[ "${resource^^}" == "ELB" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/LB_Audit.py "${env}" > "./artifacts/${env}/elb.csv"
-        elif [[ "${resource^^}" == "ROUTE53" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/route53_audit.py "${env}" > "./artifacts/${env}/route53.csv"
-        elif [[ "${resource^^}" == "SG" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/sg-audit.py "${env}" > "./artifacts/${env}/sg.csv"
-        elif [[ "${resource^^}" == "IAM" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/iam-audit.py "${env}" > "./artifacts/${env}/iam.csv"
-        elif [[ "${resource^^}" == "CLOUDWATCH" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/cloudwatch-audit.py "${env}" > "./artifacts/${env}/cloudwatch.csv"
-        elif [[ "${resource^^}" == "WAF" ]]; then
-          echo "Executing operation $resource in ${env}environment"
-          python3 ./scripts/waf.py "${env}" > "./artifacts/${env}/waf.csv"
-        elif [[ "${resource^^}" == "EFS" ]]; then
-          echo "Executing operation $resource in ${env} environment"
-          python3 ./scripts/efs.py "${env}" > "./artifacts/${env}/efs.csv"
-        else
-          echo "Input variable \"resource\" does not have one of the expected values: EKS/EC2/RDS/ROUTE53/S3/ELB/SG/CLOUDWATCH/EFS/WAF/IAM"
-          exit 1
-        fi
-      done
-  when: manual
-  allow_failure: false
-  only:
-    variables:
-      - ($env != "" && $aws_resources != "")
-  artifacts:
-    paths:
-      - ./artifacts/${env}/*.csv
-    expire_in: 1 day
-  tags:
-    - dd-server-itda-sit-ue1
- 
-Convert Job for SIT:
-  stage: sit_convert
-  script:
-    - |
-      python3 convert_to_excel_local.py "${env}"
-      echo "Executing conversion for ${env} environment"
-  dependencies:
-    - Audit Job for SIT
-  when: manual
-  allow_failure: false
-  artifacts:
-    paths:
-      - ./final-artifact/${env}/*.xlsx
-    expire_in: 1 day
-  tags:
-    - dd-server-itda-sit-ue1
-
-
-conver to excel script:
 
 import pandas as pd
 import xlsxwriter
@@ -202,57 +8,31 @@ import glob
 import sys
 import boto3
 import shutil
-ar_lst = list(sys.argv)
 from datetime import datetime,timedelta,date
-today = date.today()
-today = today.strftime("%d-%m-%Y")
-#env_name = sys.argv[1]
+
+ar_lst = list(sys.argv)
 list_env = ar_lst[1]
 
-# Specify the directory you want to create
-audit_report_dir = f"/tmp/audit-reports/audit-reports_{today}"
-# Check if directory exist
-if os.path.exists(audit_report_dir):
-    # Remove the directory
-    shutil.rmtree(audit_report_dir)
-    print(f"remove the directory: {audit_report_dir}")
-# create a directory
-os.makedirs(audit_report_dir)
-print(f"create directoy: {audit_report_dir}")
+today = date.today().strftime("%d-%m-%Y")
+
+CI_PROJECT_DIR = os.environ.get("CI_PROJECT_DIR")
+source_dir = f"{CI_PROJECT_DIR}/artifacts"
+target_dir = f"{CI_PROJECT_DIR}/final-artifact"
+
+os.makedirs(target_dir, exist_ok=True)
+
 for env_name in list_env.split(','):
     print(env_name)
-    xlsx_file = f"{audit_report_dir}/{env_name.lower()}_audit_reports.xlsx"
-    #define the workbook name                    
-    workbook_name = f"{audit_report_dir}/{env_name.lower()}_audit_reports.xlsx"
+    workbook_name = f"{target_dir}/{env_name.lower()}_audit_reports_{today}.xlsx"
     print(workbook_name)
-    # Create a new Excel file and add a worksheet.
     workbook = pd.ExcelWriter(workbook_name, engine='xlsxwriter')
-    dir_name = f"/tmp/audit-reports/{env_name.lower()}-audit-reports"
-    os.makedirs(dir_name, exist_ok=True)
-    # Directory paths for tagged and untagged CSV files
-    csv_list = f"{dir_name}/*.csv"
-    # Loop through the tagged CSV files.
-    for csv_file in glob.glob(os.path.join(dir_name, "*.csv")):
+    #csv_dir = f"{source_dir}/{env_name.lower()}-audit-reports"
+    for csv_file in glob.glob(os.path.join(source_dir, "*.csv")):
         print(csv_file)
-        # Read the CSV file.
         dataframe = pd.read_csv(csv_file)
-        # Write the data from the CSV file to a new worksheet in the Excel workbook.
-        # Use the CSV file name as the sheet name
         dataframe.to_excel(workbook, sheet_name=os.path.basename(csv_file)[:-4])  
-    # Save the changes and close the workbook.
     workbook.save()
-# print("Uploading all the csv files into S3 bucket")
-print("uploading all the csv files into S3 bucket")
-audit_reports_path = f"{audit_report_dir}/*.xlsx"
-BUCKET_NAME = 'devopssit-audit-artifacts'
-FOLDER_NAME = 'aws-resource-audit-reports/'+'audit-' + datetime.now().strftime("%d-%m-%Y")
-session = boto3.Session(profile_name='itda-devopssit')
-s3 = session.client('s3')
-report_files = glob.glob(audit_reports_path)
-for filename in report_files:
-    key = "%s/%s" % (FOLDER_NAME, os.path.basename(filename))
-    print("Putting %s as %s" % (filename,key))
-    s3.upload_file(filename, BUCKET_NAME,key)
-print("All_Done")
 
-please update the code accordingly for the above error.
+print(f"All CSV files in {source_dir} have been converted to Excel files and saved in {target_dir}.")
+
+please update the code
