@@ -1,3 +1,16 @@
+audit job working:
+
+Uploading artifacts...
+Runtime platform                                    arch=amd64 os=linux pid=1278308 revision=535ced5f version=16.11.1
+./artifacts/devopssit/*.csv: found 1 matching artifact files and directories 
+Uploading artifacts as "archive" to coordinator... 201 Created  id=130846720 responseStatus=201 Created token=64_1E3KZ
+Cleaning up project directory and file based variables
+00:00
+Job succeeded
+
+
+covert job:
+
 Uploading artifacts...
 Runtime platform                                    arch=amd64 os=linux pid=1278571 revision=535ced5f version=16.11.1
 WARNING: ./final-artifact/devopssit/*.xlsx: no matching files. Ensure that the artifact path is relative to the working directory (/home/gitlab-runner/builds/MEQM6Msv/0/hmno-devops/wireline-infra-automation) 
