@@ -1,22 +1,59 @@
-audit job working:
+import pandas as pd
+import xlsxwriter
+import os
+import glob
+import sys
+import boto3
+import shutil
+ar_lst = list(sys.argv)
+from datetime import datetime,timedelta,date
+today = date.today()
+today = today.strftime("%d-%m-%Y")
+#env_name = sys.argv[1]
+list_env = ar_lst[1]
 
-Uploading artifacts...
-Runtime platform                                    arch=amd64 os=linux pid=1278308 revision=535ced5f version=16.11.1
-./artifacts/devopssit/*.csv: found 1 matching artifact files and directories 
-Uploading artifacts as "archive" to coordinator... 201 Created  id=130846720 responseStatus=201 Created token=64_1E3KZ
-Cleaning up project directory and file based variables
-00:00
-Job succeeded
-
-
-covert job:
-
-Uploading artifacts...
-Runtime platform                                    arch=amd64 os=linux pid=1278571 revision=535ced5f version=16.11.1
-WARNING: ./final-artifact/devopssit/*.xlsx: no matching files. Ensure that the artifact path is relative to the working directory (/home/gitlab-runner/builds/MEQM6Msv/0/hmno-devops/wireline-infra-automation) 
-ERROR: No files to upload                          
-Cleaning up project directory and file based variables
-00:00
-Job succeeded
-
-getting error while converting csv to excel.
+# Specify the directory you want to create
+audit_report_dir = f"/tmp/audit-reports/audit-reports_{today}"
+# Check if directory exist
+if os.path.exists(audit_report_dir):
+    # Remove the directory
+    shutil.rmtree(audit_report_dir)
+    print(f"remove the directory: {audit_report_dir}")
+# create a directory
+os.makedirs(audit_report_dir)
+print(f"create directoy: {audit_report_dir}")
+for env_name in list_env.split(','):
+    print(env_name)
+    xlsx_file = f"{audit_report_dir}/{env_name.lower()}_audit_reports.xlsx"
+    #define the workbook name                    
+    workbook_name = f"{audit_report_dir}/{env_name.lower()}_audit_reports.xlsx"
+    print(workbook_name)
+    # Create a new Excel file and add a worksheet.
+    workbook = pd.ExcelWriter(workbook_name, engine='xlsxwriter')
+    dir_name = f"/tmp/audit-reports/{env_name.lower()}-audit-reports"
+    os.makedirs(dir_name, exist_ok=True)
+    # Directory paths for tagged and untagged CSV files
+    csv_list = f"{dir_name}/*.csv"
+    # Loop through the tagged CSV files.
+    for csv_file in glob.glob(os.path.join(dir_name, "*.csv")):
+        print(csv_file)
+        # Read the CSV file.
+        dataframe = pd.read_csv(csv_file)
+        # Write the data from the CSV file to a new worksheet in the Excel workbook.
+        # Use the CSV file name as the sheet name
+        dataframe.to_excel(workbook, sheet_name=os.path.basename(csv_file)[:-4])  
+    # Save the changes and close the workbook.
+    workbook.save()
+# print("Uploading all the csv files into S3 bucket")
+print("uploading all the csv files into S3 bucket")
+audit_reports_path = f"{audit_report_dir}/*.xlsx"
+BUCKET_NAME = 'devopssit-audit-artifacts'
+FOLDER_NAME = 'aws-resource-audit-reports/'+'audit-' + datetime.now().strftime("%d-%m-%Y")
+session = boto3.Session(profile_name='itda-devopssit')
+s3 = session.client('s3')
+report_files = glob.glob(audit_reports_path)
+for filename in report_files:
+    key = "%s/%s" % (FOLDER_NAME, os.path.basename(filename))
+    print("Putting %s as %s" % (filename,key))
+    s3.upload_file(filename, BUCKET_NAME,key)
+print("All_Done")
