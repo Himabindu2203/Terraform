@@ -1,8 +1,9 @@
-Checking the required tag keys for aws environment: sit, required tag keys: ['Name', 'Component', 'Owner', 'Env']
-us-east-1
-Traceback (most recent call last):
-  File "./scripts/waf.py", line 62, in <module>
-    creation_time = web_acl_info['WebACL']['CreatedAt']
-KeyError: 'CreatedAt'
+	ENVIRONMENT	REGION	WEB_ACL	TAGCOUNT	TAG DETAILS
+0	sit	us-east-1	itda-sit-waf-acl-ue1	0	[]
 
-getting error
+
+here is the output that waf webacl under untagged list. but its tagged. checked in ther server using cli command.
+aws wafv2 list-tags-for-resource --resource-arn arn:aws:wafv2:us-east-1:565683893800:regional/webacl/itda-sit-waf-acl-ue1/3916882c-2be0-41c7-bf1b-5c5a48aaa23e
+
+but in the console i coouldnt see the tags tab. is this the reason the output excel sheet waf showing under untagged list?
+how to solve this issue
