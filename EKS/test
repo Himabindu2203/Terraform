@@ -1,9 +1,108 @@
-	ENVIRONMENT	REGION	WEB_ACL	TAGCOUNT	TAG DETAILS
-0	sit	us-east-1	itda-sit-waf-acl-ue1	0	[]
-
-
-here is the output that waf webacl under untagged list. but its tagged. checked in ther server using cli command.
-aws wafv2 list-tags-for-resource --resource-arn arn:aws:wafv2:us-east-1:565683893800:regional/webacl/itda-sit-waf-acl-ue1/3916882c-2be0-41c7-bf1b-5c5a48aaa23e
-
-but in the console i coouldnt see the tags tab. is this the reason the output excel sheet waf showing under untagged list?
-how to solve this issue
+its working now. can u pls add wag ipset and cloudwatch log gropus also.below is the code.pls correct the code and share it.
+# check tags for IPSet resources and CloudWatch log groups
+    # Initialize the WAF client for IPSet
+    #ipset_client = boto3.client('wafv2', region_name=region)
+    ## List all IPSets
+    #ipsets = ipset_client.list_ip_sets(Scope='REGIONAL')['IPSets']
+    #with open(f'./artifacts/{env_name}-wafipset_with_tags.csv','w',newline='') as with_tag_file, \
+    #        open(f'./artifacts/{env_name}-wafipset_without_tags.csv','w',newline='') as without_tag_file:
+    #    ipsets_fieldnames = ['IPSET_NAME','ENVIRONMENT','REGION','TAG_COUNT','TAG DETAILS']
+    #    with_tag_writer = csv.DictWriter(with_tag_file,fieldnames=ipsets_fieldnames)
+    #    without_tag_writer = csv.DictWriter(without_tag_file,fieldnames=ipsets_fieldnames)
+    #    with_tag_writer.writeheader()
+    #    without_tag_writer.writeheader()
+    #for ipset in ipsets:
+    #    ipset_arn = ipset['ARN']
+    #    ipset_info = ipset_client.get_ip_set(IPSetArn=ipset_arn)
+    #    tags = ipset_info.get('TagInfoForResource', {}).get('TagList', [])
+    #    # Check if all specified tag key names are present
+    #    numtagkey=0
+    #    for tag_key in allowedKeyvalueTags:
+    #        for tag in tags:
+    #            if tag['Key'] == tag_key:
+    #                numtagkey += 1
+    #    # Get the creation date
+    #    date = ipset_info['IPSet']['CreatedAt']
+    #    creation_time = date.replace(tzinfo=None)
+    #    created_date = creation_time.strftime('%Y-%m-%d')
+    #    print(created_date)
+    #    # Get the IPSet name
+    #    ipset_name = ipset_info['IPSet']['Name']
+ #
+    #    if numtagkey == 4:
+    #        
+    #        with_tag_writer.writerow({'IPSET_NAME':ipset_name, 'ENVIRONMENT':env_name, 'REGION':region,'TAG_COUNT':numtagkey, 'TAG DETAILS':tags})
+    #    else:
+    #            without_tag_writer.writerow({'IPSET_NAME':ipset_name, 'ENVIRONMENT':env_name,'REGION':region, 'TAG_COUNT':numtagkey, 'TAG DETAILS':tags})
+    ## Initialize the CloudWatch client
+    #cloudwatch_client = boto3.client('logs', region_name=region)
+    ## List all log groups
+    #log_groups = cloudwatch_client.describe_log_groups()['logGroups']
+    #with open(f'./artifacts/{env_name}-wafcldwatch_tagged.csv','w',newline='') as with_tag_file, \
+    #        open(f'./artifacts/{env_name}-wafcldwatch_untagged.csv','w',newline='') as without_tag_file:
+    #    log_groups_fieldnames = ['LOGGROUP_NAME','ENVIRONMENT','REGION','TAG_COUNT','TAG DETAILS']
+    #    with_tag_writer = csv.DictWriter(with_tag_file,fieldnames=log_groups_fieldnames)
+    #    without_tag_writer = csv.DictWriter(without_tag_file,fieldnames=log_groups_fieldnames)
+    #    with_tag_writer.writeheader()
+    #    without_tag_writer.writeheader()
+    #for log_group in log_groups:
+    #    log_group_name = log_group['logGroupName']
+    #    tags = cloudwatch_client.list_tags_log_group(logGroupName=log_group_name)['tags']
+    #    # Check if all specified tag key names are present
+    #    numtagkey=0
+    #    for tag_key in allowedKeyvalueTags:
+    #        for key, value in tags.items():
+    #        
+    #            if key == tag_key:
+    #                numtagkey += 1
+    #    # Get the creation date
+    #    date = log_group['creationTime'] / 1000
+    #    creation_time = datetime.fromtimestamp(date)
+    #    created_date = creation_time.strftime('%Y-%m-%d')
+    #    print(created_date)
+    #    if numtagkey == 4:
+    #        # All required tags are present
+    #        with open(Tagged_WAF_List, 'a', newline='') as file:
+    #                writer = csv.writer(file)
+    #                row_list = [[env_name, region, log_group_name, numtagkey, created_date, tags]]
+    #                writer.writerows(row_list)
+    #    else:
+    #        
+    #        with open(UnTagged_WAF_List, 'a', newline='') as file:
+    #                writer = csv.writer(file)
+    #                row_list = [[env_name, region, log_group_name, numtagkey, created_date, tags]]
+    #                writer.writerows(row_list)
+    ##print("copy all the files to temp directoy")
+    ##for env_name in list_env.split(','):
+    ##    # print(env_name)
+    ##    if env_name == "devops":
+    ##        # Define the directory name
+    ##        dir_name = f"/tmp/audit-reports/{env_name}-audit-reports"
+    ##        print(f"environment specific folder is creared:{env_name}")
+    ##        # Remove the directory and its contents
+    ##        csvlist = glob.glob(os.path.join(dir_name, "*.csv"))
+    ##        for f in csvlist:
+    ##            print(f"removing the existing csv files in folder:{env_name}, file:{f}")
+    ##            os.remove(f)
+    ##        # Create the directory
+    ##        os.makedirs(dir_name, exist_ok=True)
+    ##        # Copy CSV files into the directory
+    ##        for file_name in glob.glob(f"./{env_name}-*.csv"):
+    ##            print(f"copying the csv files in folder:{env_name}, file:{file_name}")
+    ##            shutil.copy(file_name, dir_name)
+    ##    elif env_name == "devopssit":
+    ##        # Define the directory name
+    ##        dir_name = f"/tmp/audit-reports/{env_name}-audit-reports"
+    ##        print(f"environment specific folder is creared:{env_name}")
+    ##        # Remove the directory and its contents
+    ##        csvlist = glob.glob(os.path.join(dir_name, "*.csv"))
+    ##        for f in csvlist:
+    ##            print(f"removing the existing csv files in folder:{env_name}, file:{f}")
+    ##            os.remove(f)
+    ##        # Create the directory
+    ##        os.makedirs(dir_name, exist_ok=True)
+    ##        # Copy CSV files into the directory
+    ##        for file_name in glob.glob(f"./{env_name}-*.csv"):
+    ##            print(f"copying the csv files in folder:{env_name}, file:{file_name}")
+    ##            shutil.copy(file_name, dir_name)
+##
