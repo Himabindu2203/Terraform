@@ -1,91 +1,11 @@
-import boto3
-import csv
-import os,sys
-import glob
-import shutil
-import re
-from datetime import datetime,date
-from configparser import ConfigParser
+ File "/usr/local/lib/python3.7/site-packages/botocore/client.py", line 1037, in _convert_to_request_dict
+    api_params, operation_model
+  File "/usr/local/lib/python3.7/site-packages/botocore/validate.py", line 381, in serialize_to_request
+    raise ParamValidationError(report=report.generate_report())
+botocore.exceptions.ParamValidationError: Parameter validation failed:
+Missing required parameter in input: "Id"
+Cleaning up project directory and file based variables
+00:00
+ERROR: Job failed: exit status 1
 
-#reading command line arguments when running resource_report.py
-ar_lst = list(sys.argv)
-#read the list of all the environment variable
-home_path=os.environ.get("HOME")
-list_env = ar_lst[1]
-list_region = ['us-east-1','us-west-2']
-for env_name in list_env.split(','):
-    print(env_name)
-    prop_file = f"./ENV/{env_name}-config.properties"
-    print(prop_file)
-    config = ConfigParser()
-    config.read(prop_file)
-    aws_profile = config.get("Profile","AWS_PROFILE")
-    print(aws_profile)
-    Tagged_WAF_List = f"./artifacts/{env_name}-Tagged_WAF_List.csv"
-    UnTagged_WAF_List = f"./artifacts/{env_name}-UnTagged_WAF_List.csv"
-    with open(Tagged_WAF_List, 'w', newline='') as file:
-            writer = csv.writer(file)
-            field = ["ENVIRONMENT","REGION","WEB_ACL","TAGCOUNT","CREATED DATE","TAG DETAILS"]
-            writer.writerow(field)
-    with open(UnTagged_WAF_List, 'w', newline='') as file:
-            writer = csv.writer(file)
-            field = ["ENVIRONMENT","REGION","WEB_ACL","TAGCOUNT","CREATED DATE","TAG DETAILS"]
-            writer.writerow(field) 
-    session = boto3.Session(profile_name=aws_profile)
-    allowedKeyvalueTags = ['Name','Component','Owner','Env']
-    print(f"Checking the required tag keys for aws environment:{env_name}, required tag keys:{allowedKeyvalueTags}")
-    for region in list_region:
-        print(region)
-        
-
-    # Process each WebACL
-    # Initialize the WAF client
-        waf_client = boto3.client('wafv2', region_name=region)
- 
-    # List all WebACLs
-        web_acls = waf_client.list_web_acls(Scope='REGIONAL')['WebACLs']
-    
-    for web_acl in web_acls:
-        web_acl_arn = web_acl['ARN']
-        web_acl_info = waf_client.get_web_acl(WebACLArn=web_acl_arn)
-        tags = web_acl_info.get('TagInfoForResource', {}).get('TagList', [])
-        # Check if all specified tag key names are present
-        numtagkey=0
-        for tag_key in allowedKeyvalueTags:
-            for tag in tags:
-                if tag['Key'] == tag_key:
-                    numtagkey += 1
-        # Get the creation date
-        date = web_acl_info['WebACL']['CreatedAt']
-        creation_time = date.replace(tzinfo=None)
-        created_date = creation_time.strftime('%Y-%m-%d')
-        print(created_date)
-        if numtagkey == 4:
-            # All required tags are present
-            with open(Tagged_WAF_List, 'a', newline='') as file:
-                    writer = csv.writer(file)
-                    row_list = [[env_name, region, web_acl, numtagkey, created_date, tags]]
-                    writer.writerows(row_list)
-        else:
-            
-            with open(UnTagged_WAF_List, 'a', newline='') as file:
-                    writer = csv.writer(file)
-                    row_list = [[env_name, region, web_acl, numtagkey, created_date, tags]]
-                    writer.writerows(row_list)
-
-need to generate the tagged and untagged waf webacl but in the generated showing some wrong info.pls update code accordingly and share to me.
-
-excel sheet showing wrong info below: it should show waf webacl name and details
-	ENVIRONMENT	REGION	WEB_ACL	TAGCOUNT	CREATED DATE	TAG DETAILS
-0	sit	us-west-2	/aws/lambda/ssm-instance-compliance-rule-v2	0	2023-11-10	{}
-1	sit	us-west-2	/aws/rds/instance/replica-2/alert	0	2023-10-18	{}
-2	sit	us-west-2	/aws/rds/instance/replica-2/listener	0	2023-10-18	{}
-3	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-read-replica-1/alert	0	2023-10-18	{}
-4	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-read-replica-1/audit	0	2023-10-18	{}
-5	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-read-replica-1/listener	0	2023-10-18	{}
-6	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-read-replica-1/trace	0	2023-10-18	{}
-7	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-replica-1/alert	0	2023-10-18	{}
-8	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-replica-1/audit	0	2023-10-18	{}
-9	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-replica-1/listener	0	2023-10-18	{}
-10	sit	us-west-2	/aws/rds/instance/wtg-nal-devopssit-replica-1/trace	0	2023-10-18	{}
-11	sit	us-west-2	RDSOSMetrics	0	2023-10-18	{}
+getting error
