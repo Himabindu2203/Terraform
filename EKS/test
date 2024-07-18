@@ -1,6 +1,3 @@
-covert to excel local.py
-
-
 import pandas as pd
 import xlsxwriter
 import os
@@ -9,6 +6,7 @@ import sys
 import boto3
 import shutil
 from datetime import datetime,timedelta,date
+from configparser import ConfigParser
 
 ar_lst = list(sys.argv)
 list_env = ar_lst[1]
@@ -19,10 +17,16 @@ CI_PROJECT_DIR = os.environ.get("CI_PROJECT_DIR")
 source_dir = f"{CI_PROJECT_DIR}/artifacts"
 target_dir = f"{CI_PROJECT_DIR}/final-artifact"
 
+
 os.makedirs(target_dir, exist_ok=True)
 
 for env_name in list_env.split(','):
     print(env_name)
+    prop_file = f"./ENV/{env_name}-config.properties"
+    print(prop_file)
+    config = ConfigParser()
+    config.read(prop_file)
+    aws_profile = config.get("Profile","AWS_PROFILE")
     workbook_name = f"{target_dir}/{env_name.lower()}_audit_reports_{today}.xlsx"
     print(workbook_name)
     workbook = pd.ExcelWriter(workbook_name, engine='xlsxwriter')
@@ -35,4 +39,34 @@ for env_name in list_env.split(','):
 
 print(f"All CSV files in {source_dir} have been converted to Excel files and saved in {target_dir}.")
 
-please update the code
+# print("Uploading all the csv files into S3 bucket")
+print("uploading all the csv files into S3 bucket")
+audit_reports_path = f"{target_dir}"
+BUCKET_NAME = 'audit-artifacts'
+FOLDER_NAME = 'aws-resource-audit-reports/'+'audit-' + datetime.now().strftime("%d-%m-%Y")
+session = boto3.Session(profile_name=aws_profile)
+s3 = session.client('s3')
+report_files = glob.glob(audit_reports_path)
+for filename in report_files:
+    key = "%s/%s" % (FOLDER_NAME, os.path.basename(filename))
+    print("Putting %s as %s" % (filename,key))
+    s3.upload_file(filename, BUCKET_NAME,key)
+print("All_Done")
+
+
+tried to generate excel and uploding to excel,here recievd error while uploading to s3
+data = self._fileobj.read(amount_to_read)
+  File "/usr/local/lib/python3.7/site-packages/s3transfer/upload.py", line 91, in read
+    return self._fileobj.read(amount)
+  File "/usr/local/lib/python3.7/site-packages/s3transfer/utils.py", line 374, in read
+    self._open_if_needed()
+  File "/usr/local/lib/python3.7/site-packages/s3transfer/utils.py", line 365, in _open_if_needed
+    self._fileobj = self._open_function(self._filename, self._mode)
+  File "/usr/local/lib/python3.7/site-packages/s3transfer/utils.py", line 276, in open
+    return open(filename, mode)
+IsADirectoryError: [Errno 21] Is a directory: '/home/gitlab-runner/builds/bi8LD4d7/0/hmno-devops/wireline-infra-automation/final-artifact'
+Cleaning up project directory and file based variables
+00:00
+ERROR: Job failed: exit status 1
+
+please update the correct code and share to me
