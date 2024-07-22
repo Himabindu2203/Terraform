@@ -1,0 +1,25 @@
+++ whoami
++ echo 'Running as user: ssm-user'
+Running as user: ssm-user
++ echo 'Environment Variables:'
+Environment Variables:
++ grep VAULT
++ env
++ aws sts get-caller-identity
+{
+    "UserId": "AROAZI2LC42GBHI2ZIUAM:i-09255e1908a2485c7",
+    "Account": "637423249036",
+    "Arn": "arn:aws:sts::637423249036:assumed-role/dd-server-itda-devopssit-ue1-role/i-09255e1908a2485c7"
+}
++ export VAULT_ADDR=
++ VAULT_ADDR=
++ export VAULT_NAMESPACE=
++ VAULT_NAMESPACE=
++ echo 'Attempting Vault login...'
+Attempting Vault login...
++ /usr/local/bin/vault login -method=aws role=
+Error authenticating: Put "https://127.0.0.1:8200/v1/auth/aws/login": dial tcp 127.0.0.1:8200: connect: connection refused
++ set +x
+
+still connection refused.
+but in the server im abke to retrieve the token manually using same export commands.
