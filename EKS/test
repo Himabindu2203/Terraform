@@ -1,108 +1,70 @@
-its working now. can u pls add wag ipset and cloudwatch log gropus also.below is the code.pls correct the code and share it.
-# check tags for IPSet resources and CloudWatch log groups
-    # Initialize the WAF client for IPSet
-    #ipset_client = boto3.client('wafv2', region_name=region)
-    ## List all IPSets
-    #ipsets = ipset_client.list_ip_sets(Scope='REGIONAL')['IPSets']
-    #with open(f'./artifacts/{env_name}-wafipset_with_tags.csv','w',newline='') as with_tag_file, \
-    #        open(f'./artifacts/{env_name}-wafipset_without_tags.csv','w',newline='') as without_tag_file:
-    #    ipsets_fieldnames = ['IPSET_NAME','ENVIRONMENT','REGION','TAG_COUNT','TAG DETAILS']
-    #    with_tag_writer = csv.DictWriter(with_tag_file,fieldnames=ipsets_fieldnames)
-    #    without_tag_writer = csv.DictWriter(without_tag_file,fieldnames=ipsets_fieldnames)
-    #    with_tag_writer.writeheader()
-    #    without_tag_writer.writeheader()
-    #for ipset in ipsets:
-    #    ipset_arn = ipset['ARN']
-    #    ipset_info = ipset_client.get_ip_set(IPSetArn=ipset_arn)
-    #    tags = ipset_info.get('TagInfoForResource', {}).get('TagList', [])
-    #    # Check if all specified tag key names are present
-    #    numtagkey=0
-    #    for tag_key in allowedKeyvalueTags:
-    #        for tag in tags:
-    #            if tag['Key'] == tag_key:
-    #                numtagkey += 1
-    #    # Get the creation date
-    #    date = ipset_info['IPSet']['CreatedAt']
-    #    creation_time = date.replace(tzinfo=None)
-    #    created_date = creation_time.strftime('%Y-%m-%d')
-    #    print(created_date)
-    #    # Get the IPSet name
-    #    ipset_name = ipset_info['IPSet']['Name']
- #
-    #    if numtagkey == 4:
-    #        
-    #        with_tag_writer.writerow({'IPSET_NAME':ipset_name, 'ENVIRONMENT':env_name, 'REGION':region,'TAG_COUNT':numtagkey, 'TAG DETAILS':tags})
-    #    else:
-    #            without_tag_writer.writerow({'IPSET_NAME':ipset_name, 'ENVIRONMENT':env_name,'REGION':region, 'TAG_COUNT':numtagkey, 'TAG DETAILS':tags})
-    ## Initialize the CloudWatch client
-    #cloudwatch_client = boto3.client('logs', region_name=region)
-    ## List all log groups
-    #log_groups = cloudwatch_client.describe_log_groups()['logGroups']
-    #with open(f'./artifacts/{env_name}-wafcldwatch_tagged.csv','w',newline='') as with_tag_file, \
-    #        open(f'./artifacts/{env_name}-wafcldwatch_untagged.csv','w',newline='') as without_tag_file:
-    #    log_groups_fieldnames = ['LOGGROUP_NAME','ENVIRONMENT','REGION','TAG_COUNT','TAG DETAILS']
-    #    with_tag_writer = csv.DictWriter(with_tag_file,fieldnames=log_groups_fieldnames)
-    #    without_tag_writer = csv.DictWriter(without_tag_file,fieldnames=log_groups_fieldnames)
-    #    with_tag_writer.writeheader()
-    #    without_tag_writer.writeheader()
-    #for log_group in log_groups:
-    #    log_group_name = log_group['logGroupName']
-    #    tags = cloudwatch_client.list_tags_log_group(logGroupName=log_group_name)['tags']
-    #    # Check if all specified tag key names are present
-    #    numtagkey=0
-    #    for tag_key in allowedKeyvalueTags:
-    #        for key, value in tags.items():
-    #        
-    #            if key == tag_key:
-    #                numtagkey += 1
-    #    # Get the creation date
-    #    date = log_group['creationTime'] / 1000
-    #    creation_time = datetime.fromtimestamp(date)
-    #    created_date = creation_time.strftime('%Y-%m-%d')
-    #    print(created_date)
-    #    if numtagkey == 4:
-    #        # All required tags are present
-    #        with open(Tagged_WAF_List, 'a', newline='') as file:
-    #                writer = csv.writer(file)
-    #                row_list = [[env_name, region, log_group_name, numtagkey, created_date, tags]]
-    #                writer.writerows(row_list)
-    #    else:
-    #        
-    #        with open(UnTagged_WAF_List, 'a', newline='') as file:
-    #                writer = csv.writer(file)
-    #                row_list = [[env_name, region, log_group_name, numtagkey, created_date, tags]]
-    #                writer.writerows(row_list)
-    ##print("copy all the files to temp directoy")
-    ##for env_name in list_env.split(','):
-    ##    # print(env_name)
-    ##    if env_name == "devops":
-    ##        # Define the directory name
-    ##        dir_name = f"/tmp/audit-reports/{env_name}-audit-reports"
-    ##        print(f"environment specific folder is creared:{env_name}")
-    ##        # Remove the directory and its contents
-    ##        csvlist = glob.glob(os.path.join(dir_name, "*.csv"))
-    ##        for f in csvlist:
-    ##            print(f"removing the existing csv files in folder:{env_name}, file:{f}")
-    ##            os.remove(f)
-    ##        # Create the directory
-    ##        os.makedirs(dir_name, exist_ok=True)
-    ##        # Copy CSV files into the directory
-    ##        for file_name in glob.glob(f"./{env_name}-*.csv"):
-    ##            print(f"copying the csv files in folder:{env_name}, file:{file_name}")
-    ##            shutil.copy(file_name, dir_name)
-    ##    elif env_name == "devopssit":
-    ##        # Define the directory name
-    ##        dir_name = f"/tmp/audit-reports/{env_name}-audit-reports"
-    ##        print(f"environment specific folder is creared:{env_name}")
-    ##        # Remove the directory and its contents
-    ##        csvlist = glob.glob(os.path.join(dir_name, "*.csv"))
-    ##        for f in csvlist:
-    ##            print(f"removing the existing csv files in folder:{env_name}, file:{f}")
-    ##            os.remove(f)
-    ##        # Create the directory
-    ##        os.makedirs(dir_name, exist_ok=True)
-    ##        # Copy CSV files into the directory
-    ##        for file_name in glob.glob(f"./{env_name}-*.csv"):
-    ##            print(f"copying the csv files in folder:{env_name}, file:{file_name}")
-    ##            shutil.copy(file_name, dir_name)
-##
+here below is the script to setup the vault automation.
+manually in the server we r able to retrieve the token using ssm-user only. (sudo su -l ssm-user). with ec2-user and gitlab-runner user not able to retrieve.
+
+#!/bin/sh
+
+WORKSPACE=${CI_PROJECT_DIR}
+source $WORKSPACE/env/$env.properties
+
+echo "Integrating Vault for $CLUSTER_NAME in $env"
+echo "---------------------------------------------------"
+
+get_cluster_info() {
+
+    echo "Get cluster details"
+    echo "Cluster name: $CLUSTER_NAME"
+    kubectl config current-context
+
+    echo "---------------------------------------------------"
+
+    echo "Create service account $SERVICE_ACCOUNT_NAME"
+    kubectl create serviceaccount $SERVICE_ACCOUNT_NAME
+
+    RBAC=$WORKSPACE/rbac.yaml
+    sed -i "s|{{service_account_name}}|$SERVICE_ACCOUNT_NAME|g" $RBAC
+    echo "RBAC YAML"
+    cat $RBAC
+    echo "Applying RBAC"
+#    kubectl apply -f $RBAC
+
+    echo "Get secret for service account"
+    SECRET_NAME=$(kubectl get sa $SERVICE_ACCOUNT_NAME --output jsonpath="{.secrets[*]['name']}")
+    echo "SECRET_NAME $SECRET_NAME"
+
+    echo "Get JWT token"
+    SA_JWT_TOKEN=$(kubectl get secret $SECRET_NAME --output 'go-template={{ .data.token }}' | base64 --decode)
+    echo "SA_JWT_TOKEN $SA_JWT_TOKEN"
+
+    echo "Get cluster certificate"
+    SA_CA_CRT=$(kubectl config view --raw --minify --flatten --output 'jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 --decode) 
+    echo "SA_CA_CRT"
+    echo $SA_CA_CRT
+
+    echo "Get K8S host url"
+    K8S_HOST=$(kubectl config view --raw --minify --flatten --output 'jsonpath={.clusters[].cluster.server}')
+    echo "K8S_HOST $K8S_HOST"
+    setup_vault
+}
+
+setup_vault() {
+    sudo su ssm-user bash -c '
+    aws sts get-caller-identity
+    export VAULT_ADDR=$VAULT_ADDRESS
+    export VAULT_NAMESPACE=$VAULT_NAMESPACE
+    vault login -method=aws role=$VAULT_ROLE
+    '
+
+so, tried the same command to switch to ssm-user in line no:50, but its throwing error:
+
+K8S_HOST https://8EEB9E5028A9BF9F5698633B5195C178.gr7.us-east-1.eks.amazonaws.com
+{
+    "UserId": "AROAZI2LC42GBHI2ZIUAM:i-09255e1908a2485c7",
+    "Account": "637423249036",
+    "Arn": "arn:aws:sts::637423249036:assumed-role/dd-server-itda-devopssit-ue1-role/i-09255e1908a2485c7"
+}
+bash: line 4: vault: command not found
+Cleaning up project directory and file based variables
+00:00
+ERROR: Job failed: exit status 1
+
+pls help me to solve the issue
