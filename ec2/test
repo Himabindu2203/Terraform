@@ -1,5 +1,11 @@
-CLUSTER_NAME=itda-devopssit
-VAULT_NAMESPACE=wda-nsl-core-devopssit
-VAULT_ROLE=wda-nsl-core-devopssit-ns-admin
-SERVICE_ACCOUNT_NAME=nsl-vault-auth-devopssit
-VAULT_ADDRESS=https://vault-dev.meta.spectrum.net
++ echo 'Testing Vault connectivity...'
+Testing Vault connectivity...
++ curl -v /v1/sys/health
+* URL rejected: No host part in the URL
+* Closing connection
+curl: (3) URL rejected: No host part in the URL
++ echo 'Attempting Vault login...'
+Attempting Vault login...
++ vault login -method=aws role=
+Error authenticating: Put "https://127.0.0.1:8200/v1/auth/aws/login": dial tcp 127.0.0.1:8200: connect: connection refused
++ set +x
