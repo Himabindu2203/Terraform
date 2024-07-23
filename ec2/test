@@ -1,11 +1,11 @@
-+ echo 'Testing Vault connectivity...'
-Testing Vault connectivity...
-+ curl -v /v1/sys/health
-* URL rejected: No host part in the URL
-* Closing connection
-curl: (3) URL rejected: No host part in the URL
-+ echo 'Attempting Vault login...'
-Attempting Vault login...
-+ vault login -method=aws role=
-Error authenticating: Put "https://127.0.0.1:8200/v1/auth/aws/login": dial tcp 127.0.0.1:8200: connect: connection refused
-+ set +x
+in the below script, 
+#Setting temp profile for Properties automation, it'll help in case of vault properties updates
+#Otherwise error can be thrown related to IAM profile and role mismatch
+os.environ['AWS_PROFILE'] = "PROP_PROPERTIES_TEMP_PROFILE"
+#file path for single file property update
+prop_file_path = os.environ.get("file_path")
+#To check for single property update
+
+
+os.environ['AWS_PROFILE'] = "PROP_PROPERTIES_TEMP_PROFILE"  - in the scripts i coldnt find the file named with PROP_PROPERTIES_TEMP_PROFILE. how the values r pulling?
+pls explin?
