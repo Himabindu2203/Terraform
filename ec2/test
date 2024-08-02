@@ -1,9 +1,137 @@
-export VAULT_ADDR=https://vault-dev.meta.spectrum.net
-+ VAULT_ADDR=https://vault-dev.meta.spectrum.net
-+ export VAULT_NAMESPACE=wda-nsl-core-devopssit
-+ VAULT_NAMESPACE=wda-nsl-core-devopssit
-+ export VAULT_ROLE=wda-nsl-core-devopssit-ns-admin
-+ VAULT_ROLE=wda-nsl-core-devopssit-ns-admin
-+ echo VAULT_ADDR=https://vault-dev.meta.spectrum.net
-VAULT_ADDR=https://vault-dev.meta.spectrum.net
-Error authenticating: Put "https://127.0.0.1:8200/v1/auth/aws/login": dial tcp 127.0.0.1:8200: connect: connection refused
+variables:
+  env:
+    value: "select"
+    description: "env name"
+    options:
+      - "select"
+      - "devopssit-east"
+      - "devopssit-west"
+  operation: 
+    value: "select"
+    description: "operation name"
+    options:
+      - "select"
+      - "validatereplica"
+      - "createreplica"
+      - "deletereplica"
+
+stages:
+  - reviewdb
+  - createreplica
+  - deletereplica
+  - validatereplica
+workflow:
+  rules:
+    - if: $env == "devopssit-east"
+      variables:
+        RUNNER_TAG: "dd-server-itda-devopssit-ue1"
+        AWS_REGION: us-east-1
+    - if: $env == "devopssit-west"
+      variables:
+        RUNNER_TAG: "dd-server-itda-devopssit-ue1"
+        AWS_REGION: us-west-2    
+    
+reviewdb:
+  stage: reviewdb 
+  script:     
+    - |                 
+      set +x    
+      cd ${CI_PROJECT_DIR}/scripts
+      find . -type f -name "*.*" -exec chmod u=rwx {} \;
+      if [[ $operation == "createreplica" || $operation == "deletereplica" ]]; then
+        echo "reviewdb replicas for $env"
+        python3 reviewdb_replica_instance.py
+      else
+        echo "Input variable \"operation\" does not have one of the expected values: reviewdb"
+        exit 1
+      fi
+  when: manual
+  allow_failure: false
+  only:
+    refs:
+      - poc-nsl-core-db-scale-up-down-replicas
+    variables:
+      - ($env != ""  && ( $operation == "createreplica" || $operation == "deletereplica"))
+  tags:
+    - $RUNNER_TAG
+
+validatereplica:
+  stage: validatereplica 
+  script:     
+    - |                 
+      set +x    
+      cd ${CI_PROJECT_DIR}/scripts
+      find . -type f -name "*.*" -exec chmod u=rwx {} \;
+      if [[ $operation == "validatereplica" ]]; then
+        echo "validate replicas for $env"
+        python3 validate_replica_instance.py
+      else
+        echo "Input variable \"operation\" does not have one of the expected values: validatereplica"
+        exit 1
+      fi
+  when: manual
+  allow_failure: false
+  only:
+    refs:
+      - poc-nsl-core-db-scale-up-down-replicas
+    variables:
+      - ($env != ""  && ( $operation == "validatereplica"))
+  tags:
+    - $RUNNER_TAG
+       
+createreplica:
+  stage: createreplica 
+  script:     
+    - |                 
+      set +x    
+      cd ${CI_PROJECT_DIR}/scripts
+      find . -type f -name "*.*" -exec chmod u=rwx {} \;
+      if [[ $operation == "createreplica" ]]; then
+        echo "creating replicas for $env"
+        ./create_replica.sh
+      else
+        echo "Input variable \"operation\" does not have one of the expected values: createreplica"
+        exit 1
+      fi
+  when: manual
+  allow_failure: false
+  only:
+    refs:
+      - poc-nsl-core-db-scale-up-down-replicas
+    variables:
+      - ($env != ""  && ( $operation == "createreplica"))
+  tags:
+    - $RUNNER_TAG            
+deletereplica:
+  stage: deletereplica 
+  script:     
+    - |                 
+      set +x    
+      cd ${CI_PROJECT_DIR}/scripts
+      find . -type f -name "*.*" -exec chmod u=rwx {} \;
+      if [[ $operation == "deletereplica" ]]; then
+        echo "Deleting replicas for $env"
+        python3 delete_replica_instance.py
+      else
+        echo "Input variable \"operation\" does not have one of the expected values: deletereplica"
+        exit 1
+      fi 
+        
+  when: manual
+  allow_failure: false
+  only:
+    refs:
+      - poc-nsl-core-db-scale-up-down-replicas
+    variables:
+      - ($env != ""  && ( $operation == "deletereplica"))
+  tags:
+    - $RUNNER_TAG
+
+
+not able to trigger the pipeline..showing below
+
+Pipeline cannot be run.
+Pipeline will not run for the selected trigger. The rules configuration prevented any jobs from being added to the pipeline.
+
+but i have given all correct.
+please fix the issue.
