@@ -1,1 +1,23 @@
-still same error..can we try like above the worked ecmts process running code for watcher process also same using loop?
+Requurement below:
+task 1 - check if watcher is running on all VMs. 
+task 2 - start watcher wherever is not running
+
+i have already piece of code below:
+
+---
+- name: Upgrade eCMTS version 
+  hosts: "{{ target_host }}"
+  become: yes
+  tasks:
+
+    - name: Check for running watcher process on all servers
+      shell: ps -ef | grep eCMTS_watcher.sh
+      register: watcher_processes
+      ignore_errors: true
+      failed_when: false
+     
+    - name: Print the running watcher processes on all servers
+      debug:
+        msg: "{{ watcher_processes.stdout if watcher_processes.stdout else 'No watcher process running' }}"
+
+so, we have to start the watcher if it is not running.please update the code and share to me.
