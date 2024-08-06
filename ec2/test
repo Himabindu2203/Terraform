@@ -1,122 +1,38 @@
-#!/bin/sh
-sourceFile() {
-  local l_file_path=$1
-  #Temporary file just for intermediate use in this function, will be deleted here only
-  local l_temp_file="temptemp.txt"
-  #Remove content from file if first content is related to python code
-  first_line=$(head -n 1 "$l_file_path")
-  if [[ "$first_line" == "[profile]" ]]; then
-     tail -n +2 "$l_file_path" > "$l_temp_file"     
-     mv "$l_temp_file" "$l_file_path"
-  fi
-  source $l_file_path
-}
-fetch_sourcedb_details() {
-    echo "Fetching SourceDB Parameters"
-    profile=$profile
-    source_db=$db_arn
-    region=$source_region
-    if [[ $profile == "" ]]; then
-        echo "Add AWS profile details in ${env}-config.properties for $env"
-        exit 1
-    else
-        echo "AWS PROFILE: $profile"
-        export AWS_PROFILE=$profile
-    fi
-    if [[ $source_db == "" ]]; then
-        echo "Add DB details in ${env}-config.properties for $env"
-        exit 1
-    else
-        echo "DB NAME: $source_db"
-    fi
- 
-    if [[ $region == "" ]]; then
-        echo "Add region details for source DB $source_db in ${env}-config.properties for $env"
-        exit 1
-    else
-        echo "AWS Region for Source DB: $region"
-    fi
- 
-    check_db=$(aws rds describe-db-instances --db-instance-identifier $source_db --region $region --query "DBInstances[].DBInstanceStatus" --output text)
-    if [[ $check_db == "available" ]]; then
-        # Fetch information about the source DB instance
-        source_db_info=$(aws rds describe-db-instances --db-instance-identifier $source_db --region $region --query 'DBInstances[0]')
-        # Extract relevant details
-        iops=$(echo $source_db_info | jq -r '.Iops')
-        storage_type=$(echo $source_db_info | jq -r '.StorageType')
-        db_instance_class=$(echo $source_db_info | jq -r '.DBInstanceClass')
-        # Print the extracted information
-        echo "Source DB Instance: $source_db"
-        echo "IOPS: $iops"
-        echo "Storage Type: $storage_type"
-        echo "DB Instance Class: $db_instance_class"
-    fi
-}
-Replica_Instance_Creation() {
-    profile=$profile
-    source_db=$db_arn
-    SOURCE_REGION=$source_region
-    TARGET_REGION=$replica_region
-    DB_SUBNET_GROUP_NAME=$subnet_group_name
-    SECURITY_GROUP_IDS=$security_group_ids
-    
-    echo "AWS PROFILE: $profile"
-    export AWS_PROFILE=$profile
-    declare -a REPLICA_NAMES
-    
-    echo "Creating Replica instance from SourceDB"
-    IFS=',' read -r -a arrreplicas <<< "${rds_replica_list}"
-    for replica_instance in "${arrreplicas[@]}"
-    do
-     echo "Creating replica $replica_instance..."
-     aws rds create-db-instance-read-replica --db-instance-identifier $replica_instance --source-db-instance-identifier $source_db --region $TARGET_REGION --source-region $SOURCE_REGION --db-subnet-group-name $DB_SUBNET_GROUP_NAME --vpc-security-group-ids $SECURITY_GROUP_IDS --monitoring-interval 15 --enable-performance-insights --performance-insights-retention-period 7 --monitoring-role-arn 'arn:aws:iam::637423249036:role/rds-monitoring-role' &
-     #aws rds create-db-instance-read-replica --db-instance-identifier $replica_instance --source-db-instance-identifier $source_db --region $TARGET_REGION --source-region $SOURCE_REGION --db-subnet-group-name $DB_SUBNET_GROUP_NAME --vpc-security-group-ids $SECURITY_GROUP_IDS --monitoring-interval 15 --enable-performance-insights --performance-insights-retention-period 7 --monitoring-role-arn 'arn:aws:iam::637423249036:role/rds-monitoring-role' &
-     error_flag=""
-     echo "---------------------------------"
-     if [[ $error_flag != "true" ]]; then
-        echo "************************************"
-     else
-        echo "ERROR in creating the replica instance $replica_instance!!"
-        exit 1;
-     fi
-     REPLICA_NAMES+=("$replica_instance")
-     echo "Waiting for $replica_instance to become available..."   
-    done
+here the below ansible task: running watcher script in the server
+- name: Run eCMTS processes on all IPs of server
+      command: eCMTS -c /opt/etc/config/{{ item }}.json 
+      async: 31536000  
+      poll: 0
+      register: async_task
+      loop:
+        - eCMTS
+        - eCMTS1
+        - eCMTS2
+        - eCMTS3
+        - eCMTS4
+        - eCMTS5
+        - eCMTS6
+        - eCMTS7
+        - eCMTS8
+        - eCMTS9
 
-    sleep 60
-    check_replica_status "${REPLICA_NAMES[@]}"
- 
-    echo "All replicas have been created."
-}
- 
-check_replica_status() {
-  local available_replicas=0
+  
 
-  while (( available_replicas != $# )); do
-    available_replicas=0
-
-    for replica in "$@"; do
-      replica_status=$(aws rds describe-db-instances --db-instance-identifier $replica --region $TARGET_REGION --query "DBInstances[].DBInstanceStatus" --output text)
-      if [[ $replica_status == "available" ]]; then
-        ((available_replicas++))
-      fi
-    done
-
-    if (( available_replicas != $# )); then
-      echo "Waiting for replicas to become available..."
-      sleep 60
-    fi
-  done
+    - name: Check for running eCMTS processes
+      shell: ps -ef | grep eCMTS
+      register: ecmts_processes
+      ignore_errors: true
+      failed_when: false
  
-  echo "All replicas are now available."
-}
- 
- 
-if [[ $operation == "create_replica" ]]; then
-    sourceFile ${CI_PROJECT_DIR}/config/${env}-config.properties
-    fetch_sourcedb_details
-    Replica_Instance_Creation
-fi
-echo "-----------------------"
+    - name: Print the running eCMTS processes
+      debug:
+        msg: "{{ ecmts_processes.stdout if ecmts_processes.stdout else 'No process running' }}"
 
-explain step by step?
+   - name: Run watcher script
+      command: /bin/bash /opt/etc/config/eCMTS_watcher.sh 
+      async: 31536000 
+      poll: 0
+      register: async_task
+     
+
+so, after this need to check add a new task to check watcher process running separately for all the 8 servers.please provide the updated code?
