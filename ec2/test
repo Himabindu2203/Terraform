@@ -1,7 +1,30 @@
-- name: Run watcher script
-      command: /bin/bash /opt/etc/config/eCMTS_watcher.sh 
-      async: 31536000 
-      poll: 0
-      register: async_task
+task 1 - check if watcher is running on all VMs. 
+task 2 - stop watcher on all VMs
 
-here is the task for run the watcher, please update the code by adding the condition
+here below have the code,
+
+---
+- name: Upgrade eCMTS version 
+  hosts: "{{ target_host }}"
+  become: yes
+  tasks:
+    
+    - name: Check for running watcher process on all servers
+      shell: ps -ef | grep eCMTS_watcher.sh
+      register: watcher_processes
+      ignore_errors: true
+      failed_when: false
+     
+    - name: Print the running watcher processes on all servers
+      debug:
+        msg: "{{ watcher_processes.stdout if watcher_processes.stdout else 'No watcher process running' }}"
+
+    #- name: Kill watcher process
+    #  shell: sudo pkill -f eCMTS_watcher.sh
+    #  register: killed_process
+    #- name: Print the process ID of the killed process
+    #  debug:
+    #    msg: "{{ killed_process.stdout if killed_process.stdout else 'No process running' }}"
+
+
+is the code correct? correct me if wrong
