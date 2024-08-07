@@ -1,30 +1,33 @@
-task 1 - check if watcher is running on all VMs. 
-task 2 - stop watcher on all VMs
-
-here below have the code,
-
 ---
 - name: Upgrade eCMTS version 
   hosts: "{{ target_host }}"
   become: yes
   tasks:
-    
-    - name: Check for running watcher process on all servers
-      shell: ps -ef | grep eCMTS_watcher.sh
-      register: watcher_processes
+
+    - name: Run eCMTS processes on all IPs of server
+      command: eCMTS -c /opt/etc/config/{{ item }}.json 
+      async: 31536000  
+      poll: 0
+      register: async_task
+      loop:
+        - eCMTS
+        - eCMTS1
+        - eCMTS2
+        - eCMTS3
+        - eCMTS4
+        - eCMTS5
+        - eCMTS6
+        - eCMTS7
+        - eCMTS8
+        - eCMTS9
+
+    - name: Check for running eCMTS processes
+      shell: ps -ef | grep eCMTS
+      register: ecmts_processes
       ignore_errors: true
       failed_when: false
-     
-    - name: Print the running watcher processes on all servers
+  - name: Print the running eCMTS processes
       debug:
-        msg: "{{ watcher_processes.stdout if watcher_processes.stdout else 'No watcher process running' }}"
+        msg: "{{ ecmts_processes.stdout if ecmts_processes.stdout else 'No process running' }}"
 
-    #- name: Kill watcher process
-    #  shell: sudo pkill -f eCMTS_watcher.sh
-    #  register: killed_process
-    #- name: Print the process ID of the killed process
-    #  debug:
-    #    msg: "{{ killed_process.stdout if killed_process.stdout else 'No process running' }}"
-
-
-is the code correct? correct me if wrong
+here, after running ecmts processes inall servers, we are just checking and printing the processes for all. but need to validate whether the processes is running or not in all the servers.suppose if i run for ecmts processes for all servers, some how ecmts4 server processess is not running, so we have to validate for all the servers in check for running task. please update the code and share to me. 
