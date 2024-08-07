@@ -1,33 +1,242 @@
----
-- name: Upgrade eCMTS version 
-  hosts: "{{ target_host }}"
-  become: yes
-  tasks:
-
-    - name: Run eCMTS processes on all IPs of server
-      command: eCMTS -c /opt/etc/config/{{ item }}.json 
-      async: 31536000  
-      poll: 0
-      register: async_task
-      loop:
-        - eCMTS
-        - eCMTS1
-        - eCMTS2
-        - eCMTS3
-        - eCMTS4
-        - eCMTS5
-        - eCMTS6
-        - eCMTS7
-        - eCMTS8
-        - eCMTS9
-
-    - name: Check for running eCMTS processes
-      shell: ps -ef | grep eCMTS
-      register: ecmts_processes
-      ignore_errors: true
-      failed_when: false
-  - name: Print the running eCMTS processes
-      debug:
-        msg: "{{ ecmts_processes.stdout if ecmts_processes.stdout else 'No process running' }}"
-
-here, after running ecmts processes inall servers, we are just checking and printing the processes for all. but need to validate whether the processes is running or not in all the servers.suppose if i run for ecmts processes for all servers, some how ecmts4 server processess is not running, so we have to validate for all the servers in check for running task. please update the code and share to me. 
+Here below why we have multiple validations for each ecmts server? any reason?
+TASK [Validate each eCMTS process is running] **********************************
+ok: [ecmts-server1] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server1] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server2] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server3] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server4] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
+ok: [ecmts-server5] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server6] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS) => {
+    "msg": "eCMTS process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS1) => {
+    "msg": "eCMTS1 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server7] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS2) => {
+    "msg": "eCMTS2 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS3) => {
+    "msg": "eCMTS3 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS4) => {
+    "msg": "eCMTS4 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS5) => {
+    "msg": "eCMTS5 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS6) => {
+    "msg": "eCMTS6 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS7) => {
+    "msg": "eCMTS7 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS8) => {
+    "msg": "eCMTS8 process is running"
+}
+ok: [ecmts-server8] => (item=eCMTS9) => {
+    "msg": "eCMTS9 process is running"
+}
