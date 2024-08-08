@@ -1,6 +1,6 @@
 here the below script will work the below two tasks? 
 task 1 - check if watcher is running on all VMs. - running watcher in all 8 vm's.
-task 2 - start watcher wherever is not running - we have to start watcher if whereever the vm
+task 2 - start watcher wherever is not running - we have to start watcher if whereever its not running in the vm
 
 
 ---
